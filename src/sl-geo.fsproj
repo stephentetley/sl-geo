@@ -63,8 +63,9 @@
     <Compile Include="SL\PostGIS\PostGIS.fs" />
     <Compile Include="SL\Scripts\CsvOutput.fs" />
     <Compile Include="SL\Scripts\TspRouting.fs" />
+    <Compile Include="SL\Scripts\NearestHospital.fs" />
     <None Include="PgTspRouting.fsx" />
-    <None Include="Test01.fsx" />
+    <None Include="PgNearestHospital.fsx" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
