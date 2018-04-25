@@ -15,6 +15,10 @@ open Npgsql
 #load "SL\PostGIS\AnswerMonad.fs"
 #load "SL\PostGIS\SqlUtils.fs"
 #load "SL\PostGIS\PGSQLConn.fs"
+#load "SL\PostGIS\ScriptMonad.fs"
+#load "SL\PostGIS\PostGIS.fs"
+#load "SL\Scripts\CsvOutput.fs"
+#load "SL\Scripts\TspRouting.fs"
 open SL.Geo
 
 

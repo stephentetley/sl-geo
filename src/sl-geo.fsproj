@@ -59,6 +59,10 @@
     <Compile Include="SL\PostGIS\AnswerMonad.fs" />
     <Compile Include="SL\PostGIS\SqlUtils.fs" />
     <Compile Include="SL\PostGIS\PGSQLConn.fs" />
+    <Compile Include="SL\PostGIS\ScriptMonad.fs" />
+    <Compile Include="SL\PostGIS\PostGIS.fs" />
+    <Compile Include="SL\Scripts\CsvOutput.fs" />
+    <Compile Include="SL\Scripts\TspRouting.fs" />
     <None Include="Test01.fsx" />
     <Content Include="packages.config" />
   </ItemGroup>
@@ -78,6 +82,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Runtime.CompilerServices.Unsafe">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.4.0\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
