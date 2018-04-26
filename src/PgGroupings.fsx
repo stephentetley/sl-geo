@@ -5,7 +5,7 @@ open FSharp.ExcelProvider
 #I @"..\packages\FSharp.Data.3.0.0-beta3\lib\net45"
 #r @"FSharp.Data.dll"
 open FSharp.Data
-open FSharp.Data.JsonExtensions
+
 
 #I @"..\packages\Npgsql.4.0.0-preview2\lib\net451"
 #I @"..\packages\System.Threading.Tasks.Extensions.4.4.0\lib\portable-net45+win8+wp8+wpa81"

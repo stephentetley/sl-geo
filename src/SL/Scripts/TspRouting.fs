@@ -1,4 +1,4 @@
-﻿module Scripts.TspRouting
+﻿module SL.Scripts.TspRouting
 
 open Npgsql
 
