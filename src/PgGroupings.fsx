@@ -6,7 +6,6 @@ open FSharp.ExcelProvider
 #r @"FSharp.Data.dll"
 open FSharp.Data
 
-
 #I @"..\packages\Npgsql.4.0.0-preview2\lib\net451"
 #I @"..\packages\System.Threading.Tasks.Extensions.4.4.0\lib\portable-net45+win8+wp8+wpa81"
 #r "Npgsql"

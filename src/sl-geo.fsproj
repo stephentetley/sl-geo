@@ -68,11 +68,16 @@
     <Compile Include="SL\Scripts\Grouping.fs" />
     <Compile Include="SL\Scripts\PostGISHulls.fs" />
     <Compile Include="SL\Scripts\SiteOrder.fs" />
+    <Compile Include="SL\Scripts\NameGen.fs" />
+    <Compile Include="SL\Scripts\GraphvizOutput.fs" />
+    <Compile Include="SL\Scripts\PathFinder.fs" />
     <None Include="PgTspRouting.fsx" />
     <None Include="PgNearestHospital.fsx" />
     <None Include="PgDWithin.fsx" />
     <None Include="PgGroupings.fsx" />
     <None Include="PgSiteOrder.fsx" />
+    <None Include="PgPathPlan.fsx" />
+    <None Include="PgOutfalls.fsx" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -93,6 +98,9 @@
     </Reference>
     <Reference Include="FSharp.Data">
       <HintPath>..\packages\FSharp.Data.3.0.0-beta3\lib\net45\FSharp.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="FSharpx.Collections">
+      <HintPath>..\packages\FSharpx.Collections.1.17.0\lib\net40\FSharpx.Collections.dll</HintPath>
     </Reference>
     <Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>..\packages\ExcelProvider.0.8.2\lib\ICSharpCode.SharpZipLib.dll</HintPath>
