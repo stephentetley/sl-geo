@@ -64,11 +64,22 @@
     <Compile Include="SL\Scripts\CsvOutput.fs" />
     <Compile Include="SL\Scripts\TspRouting.fs" />
     <Compile Include="SL\Scripts\NearestHospital.fs" />
+    <Compile Include="SL\Scripts\ExcelProviderHelper.fs" />
+    <Compile Include="SL\Scripts\Grouping.fs" />
+    <Compile Include="SL\Scripts\PostGISHulls.fs" />
     <None Include="PgTspRouting.fsx" />
     <None Include="PgNearestHospital.fsx" />
+    <None Include="PgDWithin.fsx" />
+    <None Include="PgGroupings.fsx" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Excel">
+      <HintPath>..\packages\ExcelProvider.0.8.2\lib\Excel.dll</HintPath>
+    </Reference>
+    <Reference Include="ExcelProvider">
+      <HintPath>..\packages\ExcelProvider.0.8.2\lib\ExcelProvider.dll</HintPath>
+    </Reference>
     <Reference Include="FParsec">
       <HintPath>..\packages\FParsec.1.0.3\lib\net40-client\FParsec.dll</HintPath>
     </Reference>
@@ -80,6 +91,9 @@
     </Reference>
     <Reference Include="FSharp.Data">
       <HintPath>..\packages\FSharp.Data.3.0.0-beta3\lib\net45\FSharp.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib">
+      <HintPath>..\packages\ExcelProvider.0.8.2\lib\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="Npgsql">
