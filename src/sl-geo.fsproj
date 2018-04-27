@@ -78,6 +78,7 @@
     <None Include="PgSiteOrder.fsx" />
     <None Include="PgPathPlan.fsx" />
     <None Include="PgOutfalls.fsx" />
+    <None Include="TestGeo.fsx" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
