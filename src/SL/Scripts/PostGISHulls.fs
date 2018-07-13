@@ -2,15 +2,14 @@
 
 open Npgsql
 
+open SL.Base.Grouping
 open SL.Geo.Coord
 open SL.Geo.WellKnownText
-open SL.PostGIS.AnswerMonad
-open SL.PostGIS.PGSQLConn
 open SL.PostGIS.ScriptMonad
 open SL.PostGIS.PostGIS
 
 open SL.Scripts.CsvOutput
-open SL.Scripts.Grouping
+
 
 // ***** Concave and convex hulls
 

@@ -1,10 +1,11 @@
-﻿module SL.PostGIS.PGSQLConn
+﻿module SL.Base.PGSQLConn
 
 
 open Npgsql
 
-open SL.PostGIS.AnswerMonad
-open SL.PostGIS.SqlUtils
+open SL.Base.SqlUtils
+open SL.Base.AnswerMonad
+
 
 
 type PGSQLConnParams = 

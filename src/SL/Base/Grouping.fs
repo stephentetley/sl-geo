@@ -1,4 +1,4 @@
-﻿module SL.Scripts.Grouping
+﻿module SL.Base.Grouping
 
 
 // Note Fsharp's groupBy is not the same as Haskell's groupBy.

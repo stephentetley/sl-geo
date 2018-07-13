@@ -17,34 +17,34 @@ open Npgsql
 #r "FParsecCS"
 
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
-
+#load @"SL\Base\AnswerMonad.fs"
+#load @"SL\Base\SqlUtils.fs"
+#load @"SL\Base\PGSQLConn.fs"
+#load @"SL\Base\ExcelProviderHelper.fs"
+#load @"SL\Base\Grouping.fs"
 #load @"SL\Geo\Tolerance.fs"
 #load @"SL\Geo\Coord.fs"
 #load @"SL\Geo\WellKnownText.fs"
-#load @"SL\PostGIS\AnswerMonad.fs"
-#load @"SL\PostGIS\SqlUtils.fs"
-#load @"SL\PostGIS\PGSQLConn.fs"
 #load @"SL\PostGIS\ScriptMonad.fs"
 #load @"SL\PostGIS\PostGIS.fs"
 #load @"SL\Scripts\CsvOutput.fs"
-#load @"SL\Scripts\ExcelProviderHelper.fs"
-#load @"SL\Scripts\Grouping.fs"
 #load @"SL\Scripts\TspRouting.fs"
 #load @"SL\Scripts\SiteOrder.fs"
+open SL.Base.SqlUtils
+open SL.Base.PGSQLConn
+open SL.Base.ExcelProviderHelper
+open SL.Base.Grouping
 open SL.Geo.Coord
 open SL.Geo.WellKnownText
-open SL.PostGIS.SqlUtils
-open SL.PostGIS.PGSQLConn
 open SL.PostGIS.ScriptMonad
 open SL.PostGIS.PostGIS
 open SL.Scripts.CsvOutput
-open SL.Scripts.ExcelProviderHelper
-open SL.Scripts.Grouping
+
 open SL.Scripts.TspRouting
 open SL.Scripts.SiteOrder
 
 type SiteListTable = 
-    ExcelFile< @"G:\work\Projects\events2\EDM2 Site-List.xlsx",
+    ExcelFile< @"G:\work\Projects\events2\EDM2 Site-List SK.xlsx",
                 SheetName = "SITE_LIST",
                 ForceString = true >
 
@@ -82,7 +82,7 @@ let siteOrderDict:SiteOrderDict<string,SiteListRow> =
             Option.map osgb36ToWGS84 <| tryReadOSGB36Point row.``Site Grid Ref``
     ; ExtractNodeLabel = 
         fun (row:SiteListRow) -> 
-            sprintf "%s" row.Name }
+            sprintf "%s" row.``Site Common Name`` }
 
 
 let main (password:string) : unit = 

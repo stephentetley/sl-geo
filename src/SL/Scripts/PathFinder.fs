@@ -7,10 +7,10 @@ open FSharpx.Collections
 
 open Npgsql
 
+open SL.Base.SqlUtils
+open SL.Base.PGSQLConn
 open SL.Geo.Coord
 open SL.Geo.WellKnownText
-open SL.PostGIS.SqlUtils
-open SL.PostGIS.PGSQLConn
 open SL.PostGIS.ScriptMonad
 open SL.PostGIS.PostGIS
 open SL.Scripts.NameGen
@@ -98,14 +98,14 @@ let insertNodes (dict:PathFindInsertDict<'noderow,'edgerow>) (source:seq<'nodero
         match dict.TryMakeUserLandNode row with
         | Some node -> execNonQuery <| makeNodeInsertStmt node
         | None -> pgsqlConn.Return 0
-    liftPGSQLConn << withTransaction <| SL.PostGIS.PGSQLConn.sumTraverseM proc1 source
+    liftPGSQLConn << withTransaction <| SL.Base.PGSQLConn.sumTraverseM proc1 source
 
 let insertEdges (dict:PathFindInsertDict<'noderow,'edgerow>) (source:seq<'edgerow>) : Script<int> = 
     let proc1 (row:'edgerow) : PGSQLConn<int> = 
         match dict.TryMakeUserLandEdge row with
         | Some edge -> execNonQuery <| makeEdgeInsertStmt edge
         | None -> pgsqlConn.Return 0
-    liftPGSQLConn << withTransaction <| SL.PostGIS.PGSQLConn.sumTraverseM proc1 source
+    liftPGSQLConn << withTransaction <| SL.Base.PGSQLConn.sumTraverseM proc1 source
 
 
 

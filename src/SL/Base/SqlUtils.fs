@@ -1,4 +1,4 @@
-﻿module SL.PostGIS.SqlUtils
+﻿module SL.Base.SqlUtils
 
 open System
 

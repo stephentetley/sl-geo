@@ -19,23 +19,24 @@ open Npgsql
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 
 
+#load @"SL\Base\SqlUtils.fs"
+#load @"SL\Base\AnswerMonad.fs"
+#load @"SL\Base\PGSQLConn.fs"
+#load @"SL\Base\ExcelProviderHelper.fs"
 #load @"SL\Geo\Tolerance.fs"
 #load @"SL\Geo\Coord.fs"
 #load @"SL\Geo\WellKnownText.fs"
-#load @"SL\PostGIS\AnswerMonad.fs"
-#load @"SL\PostGIS\SqlUtils.fs"
-#load @"SL\PostGIS\PGSQLConn.fs"
 #load @"SL\PostGIS\ScriptMonad.fs"
 #load @"SL\PostGIS\PostGIS.fs"
 #load @"SL\Scripts\CsvOutput.fs"
-#load @"SL\Scripts\ExcelProviderHelper.fs"
+open SL.Base.SqlUtils
+open SL.Base.PGSQLConn
+open SL.Base.ExcelProviderHelper
 open SL.Geo.Coord
-open SL.PostGIS.SqlUtils
-open SL.PostGIS.PGSQLConn
 open SL.PostGIS.ScriptMonad
 open SL.PostGIS.PostGIS
 open SL.Scripts.CsvOutput
-open SL.Scripts.ExcelProviderHelper
+
 
 
 type SiteListTable = 
@@ -73,7 +74,7 @@ let insertRows (rows:seq<SiteListRow>) : Script<int> =
         match makeDWithinINSERT row with
         | Some sql -> execNonQuery sql
         | None -> pgsqlConn.Return 0
-    liftPGSQLConn << withTransaction <| SL.PostGIS.PGSQLConn.sumTraverseM proc1 rows
+    liftPGSQLConn << withTransaction <| SL.Base.PGSQLConn.sumTraverseM proc1 rows
 
 
 let SetupDB(password:string) : unit = 

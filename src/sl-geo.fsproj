@@ -52,20 +52,20 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="SL\Base\SqlUtils.fs" />
+    <Compile Include="SL\Base\AnswerMonad.fs" />
+    <Compile Include="SL\Base\PGSQLConn.fs" />
+    <Compile Include="SL\Base\Grouping.fs" />
+    <Compile Include="SL\Base\ExcelProviderHelper.fs" />
     <Compile Include="SL\Geo\Tolerance.fs" />
     <Compile Include="SL\Geo\Coord.fs" />
     <Compile Include="SL\Geo\WellKnownText.fs" />
     <Compile Include="SL\Geo\WebMercator.fs" />
-    <Compile Include="SL\PostGIS\AnswerMonad.fs" />
-    <Compile Include="SL\PostGIS\SqlUtils.fs" />
-    <Compile Include="SL\PostGIS\PGSQLConn.fs" />
     <Compile Include="SL\PostGIS\ScriptMonad.fs" />
     <Compile Include="SL\PostGIS\PostGIS.fs" />
     <Compile Include="SL\Scripts\CsvOutput.fs" />
     <Compile Include="SL\Scripts\TspRouting.fs" />
     <Compile Include="SL\Scripts\NearestHospital.fs" />
-    <Compile Include="SL\Scripts\ExcelProviderHelper.fs" />
-    <Compile Include="SL\Scripts\Grouping.fs" />
     <Compile Include="SL\Scripts\PostGISHulls.fs" />
     <Compile Include="SL\Scripts\SiteOrder.fs" />
     <Compile Include="SL\Scripts\NameGen.fs" />

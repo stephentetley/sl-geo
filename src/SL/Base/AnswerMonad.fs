@@ -1,4 +1,4 @@
-﻿module SL.PostGIS.AnswerMonad
+﻿module SL.Base.AnswerMonad
 
 
 // For Seq.tail

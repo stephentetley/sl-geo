@@ -13,19 +13,19 @@ open Npgsql
 #r "FParsec"
 #r "FParsecCS"
 
+#load @"SL\Base\SQLUtils.fs"
+#load @"SL\Base\AnswerMonad.fs"
+#load @"SL\Base\PGSQLConn.fs"
 #load @"SL\Geo\Tolerance.fs"
 #load @"SL\Geo\Coord.fs"
 #load @"SL\Geo\WellKnownText.fs"
-#load @"SL\PostGIS\AnswerMonad.fs"
-#load @"SL\PostGIS\SQLUtils.fs"
-#load @"SL\PostGIS\PGSQLConn.fs"
 #load @"SL\PostGIS\ScriptMonad.fs"
 #load @"SL\PostGIS\PostGIS.fs"
 #load @"SL\Scripts\CsvOutput.fs"
 #load @"SL\Scripts\NearestHospital.fs"
+open SL.Base.PGSQLConn
 open SL.Geo.Coord
 open SL.Geo.WellKnownText
-open SL.PostGIS.PGSQLConn
 open SL.Scripts.CsvOutput
 open SL.PostGIS.ScriptMonad
 open SL.Scripts.NearestHospital

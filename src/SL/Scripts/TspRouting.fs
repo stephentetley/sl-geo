@@ -2,12 +2,10 @@
 
 open Npgsql
 
+open SL.Base.SqlUtils
+open SL.Base.PGSQLConn
 open SL.Geo.Coord
 open SL.Geo.WellKnownText
-
-open SL.PostGIS.AnswerMonad
-open SL.PostGIS.SqlUtils
-open SL.PostGIS.PGSQLConn
 open SL.PostGIS.ScriptMonad
 open SL.PostGIS.PostGIS
 
@@ -62,7 +60,7 @@ let insertVertices (dict:TspNodeInsertDict<'row>) (vertices:seq<'row>) : Script<
 
     let goodData = Seq.choose id <| Seq.map good1 vertices 
 
-    liftPGSQLConn << withTransaction <| SL.PostGIS.PGSQLConn.sumTraverseM proc1 goodData
+    liftPGSQLConn << withTransaction <| SL.Base.PGSQLConn.sumTraverseM proc1 goodData
 
 let setupTspNodeDB (dict:TspNodeInsertDict<'row>) (vertices:seq<'row>) : Script<int> = 
     scriptMonad { 

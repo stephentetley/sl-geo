@@ -5,11 +5,10 @@ open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 open FSharp.Data
 open Npgsql
 
+open SL.Base.SqlUtils
+open SL.Base.PGSQLConn
 open SL.Geo.Coord
 open SL.Geo.WellKnownText
-open SL.PostGIS.AnswerMonad
-open SL.PostGIS.SqlUtils
-open SL.PostGIS.PGSQLConn
 open SL.PostGIS.ScriptMonad
 open SL.PostGIS.PostGIS
 open SL.Scripts.CsvOutput
@@ -75,7 +74,7 @@ let insertHospitals (dict:HospitalInsertDict<'inputrow>) (outfalls:seq<'inputrow
         match dict.tryMakeHospitalRecord row with
         | Some vertex -> execNonQuery <| makeHospitalINSERT vertex
         | None -> pgsqlConn.Return 0
-    liftPGSQLConn << withTransaction <| SL.PostGIS.PGSQLConn.sumTraverseM proc1 outfalls
+    liftPGSQLConn << withTransaction <| SL.Base.PGSQLConn.sumTraverseM proc1 outfalls
 
 
 let SetupHospitalDB (dict:HospitalInsertDict<'inputrow>) (hospitals:seq<'inputrow>) : Script<int> = 

@@ -18,22 +18,21 @@ open FSharpx.Collections
 
 
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
-
+#load @"SL\Base\AnswerMonad.fs"
+#load @"SL\Base\SqlUtils.fs"
+#load @"SL\Base\PGSQLConn.fs"
 #load @"SL\Geo\Tolerance.fs"
 #load @"SL\Geo\Coord.fs"
 #load @"SL\Geo\WellKnownText.fs"
-#load @"SL\PostGIS\AnswerMonad.fs"
-#load @"SL\PostGIS\SqlUtils.fs"
-#load @"SL\PostGIS\PGSQLConn.fs"
 #load @"SL\PostGIS\ScriptMonad.fs"
 #load @"SL\PostGIS\PostGIS.fs"
 #load @"SL\Scripts\CsvOutput.fs"
 #load @"SL\Scripts\NameGen.fs"
 #load @"SL\Scripts\GraphvizOutput.fs"
 #load @"SL\Scripts\PathFinder.fs"
+open SL.Base.PGSQLConn
 open SL.Geo.Coord
 open SL.Geo.WellKnownText
-open SL.PostGIS.PGSQLConn
 open SL.PostGIS.ScriptMonad
 open SL.Scripts.PathFinder
 

@@ -1,11 +1,12 @@
 ﻿module SL.Scripts.SiteOrder
 
+open SL.Base.Grouping
 open SL.Geo.Coord
 open SL.Geo.WellKnownText
 open SL.PostGIS.ScriptMonad
 open SL.PostGIS.PostGIS
 
-open SL.Scripts.Grouping
+
 open SL.Scripts.TspRouting
 
 // Note Scripts.Grouping now feels "not worked out".

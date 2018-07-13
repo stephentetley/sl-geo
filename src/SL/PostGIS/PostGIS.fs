@@ -2,10 +2,10 @@
 
 open Npgsql
 
+open SL.Base.AnswerMonad
+open SL.Base.PGSQLConn
 open SL.Geo.Coord
 open SL.Geo.WellKnownText
-open SL.PostGIS.AnswerMonad
-open SL.PostGIS.PGSQLConn
 open SL.PostGIS.ScriptMonad
 
 // Common Script type for working with PGSQL connections

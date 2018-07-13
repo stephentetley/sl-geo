@@ -15,19 +15,18 @@ open Npgsql
 
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 
-
+#load @"SL\Base\AnswerMonad.fs"
+#load @"SL\Base\SqlUtils.fs"
+#load @"SL\Base\PGSQLConn.fs"
 #load @"SL\Geo\Tolerance.fs"
 #load @"SL\Geo\Coord.fs"
 #load @"SL\Geo\WellKnownText.fs"
-#load @"SL\PostGIS\AnswerMonad.fs"
-#load @"SL\PostGIS\SqlUtils.fs"
-#load @"SL\PostGIS\PGSQLConn.fs"
 #load @"SL\PostGIS\ScriptMonad.fs"
 #load @"SL\PostGIS\PostGIS.fs"
 #load @"SL\Scripts\CsvOutput.fs"
+open SL.Base.SqlUtils
+open SL.Base.PGSQLConn
 open SL.Geo.Coord
-open SL.PostGIS.SqlUtils
-open SL.PostGIS.PGSQLConn
 open SL.PostGIS.ScriptMonad
 open SL.PostGIS.PostGIS
 open SL.Scripts.CsvOutput
@@ -81,7 +80,7 @@ let makeOutfallINSERT (row:OutfallRow) : string =
 let insertOutfalls () : Script<int> = 
     let rows = getOutfalls ()
     let proc1 (row:OutfallRow) : PGSQLConn<int> = execNonQuery <| makeOutfallINSERT row
-    liftPGSQLConn << withTransaction <| SL.PostGIS.PGSQLConn.sumForM rows proc1
+    liftPGSQLConn << withTransaction <| SL.Base.PGSQLConn.sumForM rows proc1
 
 
 
