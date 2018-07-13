@@ -23,22 +23,21 @@ open Npgsql
 #load @"SL\Base\PGSQLConn.fs"
 #load @"SL\Base\ExcelProviderHelper.fs"
 #load @"SL\Base\Grouping.fs"
+#load @"SL\Base\CsvOutput.fs"
 #load @"SL\Geo\Tolerance.fs"
 #load @"SL\Geo\Coord.fs"
 #load @"SL\Geo\WellKnownText.fs"
 #load @"SL\PostGIS\ScriptMonad.fs"
 #load @"SL\PostGIS\PostGIS.fs"
-#load @"SL\Scripts\CsvOutput.fs"
 #load @"SL\Scripts\PostGISHulls.fs"
 open SL.Base.PGSQLConn
 open SL.Base.ExcelProviderHelper
 open SL.Base.Grouping
+open SL.Base.CsvOutput
 open SL.Geo.Coord
 open SL.Geo.WellKnownText
 open SL.PostGIS.ScriptMonad
 open SL.PostGIS.PostGIS
-open SL.Scripts.CsvOutput
-
 open SL.Scripts.PostGISHulls
 
 type ImportTable = 

@@ -25,19 +25,20 @@ open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 #load @"SL\Base\SqlUtils.fs"
 #load @"SL\Base\PGSQLConn.fs"
 #load @"SL\Base\ExcelProviderHelper.fs"
+#load @"SL\Base\CsvOutput.fs"
 #load @"SL\Geo\Tolerance.fs"
 #load @"SL\Geo\Coord.fs"
 #load @"SL\Geo\WellKnownText.fs"
 #load @"SL\PostGIS\ScriptMonad.fs"
 #load @"SL\PostGIS\PostGIS.fs"
-#load @"SL\Scripts\CsvOutput.fs"
 open SL.Base.SqlUtils
 open SL.Base.PGSQLConn
 open SL.Base.ExcelProviderHelper
+open SL.Base.CsvOutput
 open SL.Geo.Coord
 open SL.PostGIS.ScriptMonad
 open SL.PostGIS.PostGIS
-open SL.Scripts.CsvOutput
+
 
 
 
@@ -142,7 +143,7 @@ let main (password:string) : unit =
         <| scriptMonad { 
                 let! rows = SL.PostGIS.ScriptMonad.mapM makeOutputRow sites
                 let csvProc:CsvOutput<unit> = 
-                    SL.Scripts.CsvOutput.writeRowsWithHeaders csvHeaders rows
-                do (SL.Scripts.CsvOutput.outputToNew {Separator=","} csvProc outputFile)
+                    writeRowsWithHeaders csvHeaders rows
+                do (outputToNew {Separator=","} csvProc outputFile)
                 return ()
                 }

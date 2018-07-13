@@ -10,11 +10,12 @@ open Npgsql
 
 open SL.Base.SqlUtils
 open SL.Base.PGSQLConn
+open SL.Base.CsvOutput
 open SL.Geo.Coord
 open SL.Geo.WellKnownText
 open SL.PostGIS.ScriptMonad
 open SL.PostGIS.PostGIS
-open SL.Scripts.CsvOutput
+
 
 // Use PostGIS for nearest neighour and distance.
 

@@ -2,15 +2,10 @@
 // License: BSD 3 Clause
 
 
-module SL.Scripts.CsvOutput
+module SL.Base.CsvOutput
 
 open System
 open System.IO
-
-// NOTE - there is no real need for a corresponding CsvInput monad.
-// For most Csv reading FSharp.Data type providers should be used, the
-// main exception is trimming (unnecessarily) padded Csv.
-
 
 
 // Quoting always uses double quote (it is not user customizable).
