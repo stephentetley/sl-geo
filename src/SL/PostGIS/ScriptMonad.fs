@@ -9,13 +9,6 @@ open SL.Base.AnswerMonad
 open SL.Base
 
 
-// Design Note:
-// Ideally we would like an iterative way of outputting Csv but as we don't
-// have monad transformers at our disposal I'm not sure how to do this.
-// At the moment the solution seems to be generate a seq<RowWriter> and
-// output it by lifting outputToNew and tellRows or writeRowsWithHeaders.
-
-
 
 type LogAction = StringWriter -> unit
 
@@ -250,8 +243,12 @@ let alt (ma:ScriptMonad<'r,'a>) (mb:ScriptMonad<'r,'a>) : ScriptMonad<'r,'a> =
         AnswerMonad.alt (apply1 ma sw env) (apply1 mb sw env)
 
 
-// Catch failing computations, return None. 
-// Successful operations are returned as Some(_).
+/// Catch failing computations, return None. 
+/// Successful operations are returned as Some(_).
+///
+/// DESIGN NOTE 
+/// This is too far-reaching there are some errors, e.g. DB connect 
+/// failures, that we absolutely do not want to mask.
 let optional (ma:ScriptMonad<'r,'a>) : ScriptMonad<'r,'a option> = 
     ScriptMonad <| fun sw env -> 
         AnswerMonad.optional (apply1 ma sw env)

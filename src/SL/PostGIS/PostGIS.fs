@@ -26,8 +26,10 @@ let withConnParams (fn:PGSQLConnParams -> Script<'a>) : Script<'a> =
 let liftWithConnParams (fn:PGSQLConnParams -> Result<'a>) : Script<'a> = 
     withConnParams <| (liftResult << fn)
 
+/// Note this is now a bad name as the underlying PGSQLConn functiona name
+/// has changed.
 let liftPGSQLConn (pgsql:PGSQLConn<'a>) : Script<'a> = 
-    withConnParams <| fun conn -> liftResult <| runPGSQLConn conn pgsql
+    withConnParams <| fun conn -> liftResult <| atomically conn pgsql
 
 let private singletonWithReader (query:string) (proc:NpgsqlDataReader -> 'a) : Script<'a> = 
     liftPGSQLConn <| execReaderSingleton query proc

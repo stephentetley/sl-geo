@@ -5,6 +5,7 @@ module SL.Base.PGSQLConn
 
 open System.Text
 
+
 open Npgsql
 
 open SL.Base.SqlUtils
@@ -16,7 +17,8 @@ open SL.Base.SqlUtils
 /// the conn monad frequently (c.f Haskell STM monads `automically`), 
 /// rather than design all the code within a single invocation of
 /// the monad.
-
+/// Potentially a phantom type could be used to inidicate commands 
+/// that must be run atomically.
 
 
 
@@ -261,18 +263,41 @@ let augmentError (msg:string) (ma:PGSQLConn<'a>) : PGSQLConn<'a> =
 
 
 /// TODO - look at running this in a transaction...
-let runPGSQLConn (connParams:PGSQLConnParams) (ma:PGSQLConn<'a>) : Result<'a> = 
-    let conn = paramsConnString connParams 
+
+let private atomically1 (pgconn : NpgsqlConnection) (ma:PGSQLConn<'a>) : Result<'a> = 
+    pgconn.Open()
+    let trans = pgconn.BeginTransaction(System.Data.IsolationLevel.ReadCommitted)
+    try 
+        let ans = apply1 ma pgconn
+        match ans with
+        | Success a -> trans.Commit () ; pgconn.Close(); ans
+        | Failure msg -> trans.Rollback () ; pgconn.Close(); ans
+    with
+    | ex -> trans.Rollback();  pgconn.Close(); Failure (connError <| ex.ToString() )
+
+
+/// Run the script guarded by a transaction / rollback.
+/// This is the favoured method to run PostgreSQL operations.
+let atomically (connParams:PGSQLConnParams) (ma:PGSQLConn<'a>) : Result<'a> = 
+    let connStr = paramsConnString connParams 
     try
-        let dbconn : NpgsqlConnection = new NpgsqlConnection(conn)
-        dbconn.Open()
-        let a = match ma with | PGSQLConn(f) -> f dbconn
-        dbconn.Close()
+        let pgconn : NpgsqlConnection = new NpgsqlConnection(connStr)
+        atomically1 pgconn ma  
+    with
+    | err -> printfn "FAILURE: %s" err.Message; Failure (connError err.Message)
+
+
+/// Run the script without the guard of a transaction / rollback.
+let runUnguarded (connParams:PGSQLConnParams) (ma:PGSQLConn<'a>) : Result<'a> = 
+    let connStr = paramsConnString connParams 
+    try
+        let pgconn : NpgsqlConnection = new NpgsqlConnection(connStr)
+        pgconn.Open()
+        let a = match ma with | PGSQLConn(f) -> f pgconn
+        pgconn.Close()
         a   
     with
     | err -> Failure (connError err.Message)
-
-
 
 
 
@@ -381,35 +406,7 @@ let execReaderFirst (statement:string) (proc:NpgsqlDataReader -> 'a) : PGSQLConn
         with
         | ex -> Failure (connError <| ex.ToString())
 
-/// TODO - the toplevel run-function should (probably) be within a transaction
-/// so it can rollback. Then we don't need this function.
-let withTransaction (ma:PGSQLConn<'a>) : PGSQLConn<'a> = 
-    PGSQLConn <| fun conn -> 
-        let trans = conn.BeginTransaction(System.Data.IsolationLevel.ReadCommitted)
-        try 
-            let ans = apply1 ma conn
-            match ans with
-            | Success a -> trans.Commit () ; ans
-            | Failure msg -> trans.Rollback () ; ans
-        with 
-        | ex -> trans.Rollback() ; Failure (connError <| ex.ToString() )
-        
 
-
-let withTransactionList (values:'a list) (proc1:'a -> PGSQLConn<'b>) : PGSQLConn<'b list> = 
-    withTransaction (forM values proc1)
-
-
-let withTransactionListSum (values:'a list) (proc1:'a -> PGSQLConn<int>) : PGSQLConn<int> = 
-    fmapM (List.sum) <| withTransactionList values proc1
-
-
-
-let withTransactionSeq (values:seq<'a>) (proc1:'a -> PGSQLConn<'b>) : PGSQLConn<seq<'b>> = 
-    withTransaction (traverseM proc1 values)
-    
-let withTransactionSeqSum (values:seq<'a>) (proc1:'a -> PGSQLConn<int>) : PGSQLConn<int> = 
-    fmapM (Seq.sum) <| withTransactionSeq values proc1
 
 /// Run a ``TRUNCATE TABLE`` query
 let deleteAllRows (tableName:string) : PGSQLConn<int> = 

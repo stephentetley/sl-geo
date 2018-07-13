@@ -77,7 +77,7 @@ let insertHospitals (dict:HospitalInsertDict<'inputrow>) (outfalls:seq<'inputrow
         match dict.tryMakeHospitalRecord row with
         | Some vertex -> execNonQuery <| makeHospitalINSERT vertex
         | None -> pgsqlConn.Return 0
-    liftPGSQLConn << withTransaction <| SL.Base.PGSQLConn.sumTraverseM proc1 outfalls
+    liftPGSQLConn <| SL.Base.PGSQLConn.sumTraverseM proc1 outfalls
 
 
 let SetupHospitalDB (dict:HospitalInsertDict<'inputrow>) (hospitals:seq<'inputrow>) : Script<int> = 
@@ -112,13 +112,14 @@ let nearestHospitalQuery (point:WGS84Point) : Script<HospitalRecord list> =
     let procM (reader:NpgsqlDataReader) : HospitalRecord = 
         let gridRef = 
             match Option.bind wktPointToWGS84 <| tryReadWktPoint (reader.GetString(4)) with
-            | Some pt -> pt
+            | Some pt -> printfn"pt: {%A}" pt;  pt
             | None -> failwith "nearestHospitalQuery - invalid gridRef ..."
         { HospitalName  = reader.GetString(0)
         ; Phone         = reader.GetString(1)
         ; Address       = reader.GetString(2) 
         ; Postcode      = reader.GetString(3)
         ; GridRef       = gridRef }
+    // printfn "***** QUERY:\n%s" query
     liftPGSQLConn <| execReaderList query procM  
 
 
@@ -129,18 +130,17 @@ let nearestHospitalToPoint (point:WGS84Point) : Script<HospitalRecord option> =
 
 
 let nearestHospital (extractLoc:'asset -> WGS84Point option) (asset:'asset) : Script<HospitalRecord> = 
-    runOptional "nearestHospital fail" 
-        <| scriptMonad { 
-            match extractLoc asset with
-            | None -> return None
-            | Some pt -> 
-                let! ans = nearestHospitalToPoint pt 
-                return ans
-            }
+    runOptional "nearestHospital fail" <| 
+        match extractLoc asset with
+        | None -> sreturn None
+        | Some pt -> printfn "pt: %A" pt; nearestHospitalToPoint pt 
+           
     
 let nearestHospitals (extractLoc:'asset -> WGS84Point option) (assets:seq<'asset>) : Script<seq<'asset * HospitalRecord option>> = 
     let proc1 (asset:'asset) = 
         scriptMonad { 
+            // optional is the wrong combinator here, it masks hard failures
+            // that need to be seen (e.g DB connect failure).
             let! opt = optional <| nearestHospital extractLoc asset
             return asset, opt
             }
