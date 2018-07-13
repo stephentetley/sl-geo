@@ -1,4 +1,7 @@
-﻿module SL.Base.AnswerMonad
+﻿// Copyright (c) Stephen Tetley 2018
+// License: BSD 3 Clause
+
+module SL.Base.AnswerMonad
 
 
 // For Seq.tail

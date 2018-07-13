@@ -1,4 +1,7 @@
-﻿module SL.Scripts.NearestHospital
+﻿// Copyright (c) Stephen Tetley 2018
+// License: BSD 3 Clause
+
+module SL.Scripts.NearestHospital
 
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 

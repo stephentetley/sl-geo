@@ -1,4 +1,7 @@
-﻿module SL.Scripts.TspRouting
+﻿// Copyright (c) Stephen Tetley 2018
+// License: BSD 3 Clause
+
+module SL.Scripts.TspRouting
 
 open Npgsql
 

@@ -1,4 +1,7 @@
-﻿module SL.PostGIS.PostGIS
+﻿// Copyright (c) Stephen Tetley 2018
+// License: BSD 3 Clause
+
+module SL.PostGIS.PostGIS
 
 open Npgsql
 

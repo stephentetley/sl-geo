@@ -1,4 +1,7 @@
-﻿module SL.Base.ExcelProviderHelper
+﻿// Copyright (c) Stephen Tetley 2018
+// License: BSD 3 Clause
+
+module SL.Base.ExcelProviderHelper
 
 // The Excel Type Provider seems to read a trailing null row.
 // This dictionary and procedure provide a skeleton to get round this.

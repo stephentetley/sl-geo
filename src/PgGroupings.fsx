@@ -1,4 +1,7 @@
-﻿#I @"..\packages\ExcelProvider.0.8.2\lib"
+﻿// Copyright (c) Stephen Tetley 2018
+// License: BSD 3 Clause
+
+#I @"..\packages\ExcelProvider.0.8.2\lib"
 #r "ExcelProvider.dll"
 open FSharp.ExcelProvider
 

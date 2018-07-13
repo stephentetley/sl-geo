@@ -1,4 +1,7 @@
-﻿module SL.Scripts.PathFinder
+﻿// Copyright (c) Stephen Tetley 2018
+// License: BSD 3 Clause
+
+module SL.Scripts.PathFinder
 
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 open System.Collections.Generic

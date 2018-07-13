@@ -1,4 +1,7 @@
-﻿module SL.Base.SqlUtils
+﻿// Copyright (c) Stephen Tetley 2018
+// License: BSD 3 Clause
+
+module SL.Base.SqlUtils
 
 open System
 

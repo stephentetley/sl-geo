@@ -1,4 +1,7 @@
-﻿module SL.Scripts.SiteOrder
+﻿// Copyright (c) Stephen Tetley 2018
+// License: BSD 3 Clause
+
+module SL.Scripts.SiteOrder
 
 open SL.Base.Grouping
 open SL.Geo.Coord

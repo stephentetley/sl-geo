@@ -1,4 +1,8 @@
-﻿module SL.Scripts.CsvOutput
+﻿// Copyright (c) Stephen Tetley 2018
+// License: BSD 3 Clause
+
+
+module SL.Scripts.CsvOutput
 
 open System
 open System.IO

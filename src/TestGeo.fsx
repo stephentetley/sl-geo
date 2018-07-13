@@ -1,4 +1,7 @@
-﻿#I @"..\packages\FParsec.1.0.3\lib\net40-client"
+﻿// Copyright (c) Stephen Tetley 2018
+// License: BSD 3 Clause
+
+#I @"..\packages\FParsec.1.0.3\lib\net40-client"
 #r "FParsec"
 #r "FParsecCS"
 
