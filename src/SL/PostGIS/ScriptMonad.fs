@@ -29,7 +29,7 @@ type ScriptMonad<'r,'a> = private ScriptMonad of (StringWriter -> 'r -> Answer<'
 let inline private apply1 (ma : ScriptMonad<'r,'a>) (sw:StringWriter) (env:'r) : Answer<'a> = 
     let (ScriptMonad fn) = ma  in  fn sw env
 
-let inline private unitM (x:'a) : ScriptMonad<'r,'a> = 
+let inline sreturn (x:'a) : ScriptMonad<'r,'a> = 
     ScriptMonad <| fun sw r -> answerMonad.Return x
 
 
@@ -39,13 +39,13 @@ let inline private bindM (ma:ScriptMonad<'r,'a>) (f : 'a -> ScriptMonad<'r,'b>) 
         answerMonad.Bind (apply1 ma sw env, fun a -> apply1 (f a) sw env)
 
 
-// let fail : ScriptMonad<'r,'a> = ScriptMonad <| fun sw env ->  AnswerMonad.Err "ScriptMonad fail"
-
+let szero () : ScriptMonad<'r,'a> = 
+    ScriptMonad <| fun _ _ -> answerMonad.Zero ()
 
 type ScriptBuilder() = 
-    member self.Return x = unitM x
-    member self.Bind (p,f) = bindM p f
-    member self.Zero () = unitM ()
+    member self.Return x    = sreturn x
+    member self.Bind (p,f)  = bindM p f
+    member self.Zero ()     = szero ()
     // TODO member self.ReturnFrom 
 
 

@@ -3,11 +3,50 @@
 
 module SL.Base.PGSQLConn
 
+open System.Text
 
 open Npgsql
 
 open SL.Base.SqlUtils
-open SL.Base.AnswerMonad
+
+
+
+/// Design Note 
+/// To manage transactions / rollback we should think of running
+/// the conn monad frequently (c.f Haskell STM monads `automically`), 
+/// rather than design all the code within a single invocation of
+/// the monad.
+
+
+
+
+
+type ConnError = ConnError of string * list<ConnError>
+
+let getErrorLog (err:ConnError) : string = 
+    let writeLine (depth:int) (str:string) (sb:StringBuilder) : StringBuilder = 
+        let line = sprintf "%s %s" (String.replicate depth "*") str
+        sb.AppendLine(line)
+    let rec work (e1:ConnError) (depth:int) (sb:StringBuilder) : StringBuilder  = 
+        match e1 with
+        | ConnError (s,[]) -> writeLine depth s sb
+        | ConnError (s,xs) ->
+            let sb1 = writeLine depth s sb
+            List.fold (fun buf branch -> work branch (depth+1) buf) sb1 xs
+    work err 0 (new StringBuilder()) |> fun sb -> sb.ToString()
+
+/// Create a fresh ConnError
+let private connError (errMsg:string) : ConnError = 
+    ConnError(errMsg, [])
+
+let private concatParseErrors (errMsg:string) (failures:ConnError list) : ConnError = 
+    ConnError(errMsg, failures)
+
+
+type Result<'a> = 
+    | Success of 'a
+    | Failure of ConnError
+
 
 
 
@@ -28,27 +67,45 @@ let pgsqlConnParamsTesting (dbName:string) (password:string) : PGSQLConnParams =
 
 
 // SQLiteConn Monad
-type PGSQLConn<'a> = PGSQLConn of (NpgsqlConnection -> Answer<'a>)
+type PGSQLConn<'a> = PGSQLConn of (NpgsqlConnection -> Result<'a>)
 
-let inline private apply1 (ma : PGSQLConn<'a>) (conn:NpgsqlConnection) : Answer<'a> = 
+let inline private apply1 (ma : PGSQLConn<'a>) (conn:NpgsqlConnection) : Result<'a> = 
     let (PGSQLConn f) = ma in f conn
 
-let inline private unitM (x:'a) : PGSQLConn<'a> = PGSQLConn (fun _ -> Ok x)
+
+let inline private pgreturn (x:'a) : PGSQLConn<'a> = 
+    PGSQLConn (fun _ -> Success x)
 
 
 let inline private bindM (ma:PGSQLConn<'a>) (f : 'a -> PGSQLConn<'b>) : PGSQLConn<'b> =
     PGSQLConn <| fun conn -> 
         match apply1 ma conn with
-        | Ok(a) -> apply1 (f a) conn
-        | Err(msg) -> Err(msg)
+        | Success a -> apply1 (f a) conn
+        | Failure msg -> Failure msg
 
-let fail : PGSQLConn<'a> = PGSQLConn (fun _ -> Err "PGSQLConn fail")
+
+let inline pgzero () : PGSQLConn<'a> = 
+    PGSQLConn <| fun _ -> Failure (connError "pgzero")
+
+
+
+/// For PGSQLConn combineM is Haskell's (>>)
+let inline private combineM (ma:PGSQLConn<unit>) (mb:PGSQLConn<'b>) : PGSQLConn<'b> = 
+    PGSQLConn <| fun conn -> 
+        match apply1 ma conn with
+        | Failure stk -> Failure stk
+        | Success _ -> apply1 mb conn
+
+let inline private  delayM (fn:unit -> PGSQLConn<'a>) : PGSQLConn<'a> = 
+    bindM (pgreturn ()) fn 
 
 
 type PGSQLConnBuilder() = 
-    member self.Return x = unitM x
-    member self.Bind (p,f) = bindM p f
-    member self.Zero () = unitM ()
+    member self.Return x            = pgreturn x
+    member self.Bind (p,f)          = bindM p f
+    member self.Zero ()             = pgzero ()
+    member self.Combine (ma,mb)     = combineM ma mb
+    member self.Delay fn            = delayM fn
 
 let (pgsqlConn:PGSQLConnBuilder) = new PGSQLConnBuilder()
 
@@ -57,54 +114,102 @@ let (pgsqlConn:PGSQLConnBuilder) = new PGSQLConnBuilder()
 let fmapM (fn:'a -> 'b) (ma:PGSQLConn<'a>) : PGSQLConn<'b> = 
     PGSQLConn <| fun conn ->
        match apply1 ma conn with
-       | Ok(ans) -> Ok <| fn ans
-       | Err(msg) -> Err(msg)
+       | Success ans -> Success <| fn ans
+       | Failure msg -> Failure msg
 
-let mapM (fn:'a -> PGSQLConn<'b>) (xs:'a list) : PGSQLConn<'b list> = 
+let mapM (fn:'a -> PGSQLConn<'b>) (source:'a list) : PGSQLConn<'b list> = 
     PGSQLConn <| fun conn ->
-        AnswerMonad.mapM (fun a -> apply1 (fn a) conn) xs
+        let rec work ac xs = 
+            match xs with
+            | [] -> Success (List.rev ac)
+            | z :: zs -> 
+                match apply1 (fn z) conn with
+                | Failure stk -> Failure stk
+                | Success ans -> work (ans::ac) zs
+        work [] source 
 
-let forM (xs:'a list) (fn:'a -> PGSQLConn<'b>) : PGSQLConn<'b list> = mapM fn xs
+let forM (xs:'a list) (fn:'a -> PGSQLConn<'b>) : PGSQLConn<'b list> = 
+    mapM fn xs
 
-let mapMz (fn:'a -> PGSQLConn<'b>) (xs:'a list) : PGSQLConn<unit> = 
+let mapMz (fn:'a -> PGSQLConn<'b>) (source:'a list) : PGSQLConn<unit> = 
     PGSQLConn <| fun conn ->
-        AnswerMonad.mapMz (fun a -> apply1 (fn a) conn) xs
+        let rec work xs = 
+            match xs with
+            | [] -> Success ()
+            | z :: zs -> 
+                match apply1 (fn z) conn with
+                | Failure stk -> Failure stk
+                | Success _ -> work zs
+        work source 
 
 let forMz (xs:'a list) (fn:'a -> PGSQLConn<'b>) : PGSQLConn<unit> = mapMz fn xs
 
-let mapiM (fn:int -> 'a -> PGSQLConn<'b>) (xs:'a list) : PGSQLConn<'b list> = 
+let mapiM (fn:int -> 'a -> PGSQLConn<'b>) (source:'a list) : PGSQLConn<'b list> = 
     PGSQLConn <| fun conn ->
-        AnswerMonad.mapiM (fun ix a -> apply1 (fn ix a) conn) xs
+        let rec work ix ac xs = 
+            match xs with
+            | [] -> Success (List.rev ac)
+            | z :: zs -> 
+                match apply1 (fn ix z) conn with
+                | Failure stk -> Failure stk
+                | Success ans -> work (ix+1) (ans::ac) zs
+        work 0 [] source 
 
-let mapiMz (fn:int -> 'a -> PGSQLConn<'b>) (xs:'a list) : PGSQLConn<unit> = 
+let mapiMz (fn:int -> 'a -> PGSQLConn<'b>) (source:'a list) : PGSQLConn<unit> = 
     PGSQLConn <| fun conn ->
-        AnswerMonad.mapiMz (fun ix a -> apply1 (fn ix a) conn) xs
+        let rec work ix  xs = 
+            match xs with
+            | [] -> Success ()
+            | z :: zs -> 
+                match apply1 (fn ix z) conn with
+                | Failure stk -> Failure stk
+                | Success ans -> work (ix+1) zs
+        work 0 source 
 
-let foriM (xs:'a list) (fn:int -> 'a -> PGSQLConn<'b>) : PGSQLConn<'b list> = mapiM fn xs
+let foriM (xs:'a list) (fn:int -> 'a -> PGSQLConn<'b>) : PGSQLConn<'b list> = 
+    mapiM fn xs
+
+
+
+// Note - Seq going through list seems better than anything I can manage directly
+// either with recursion (bursts the stack) or an enumerator (very slow)
+// The moral is `traverse` is a bad API (currently)
 
 let traverseM (fn: 'a -> PGSQLConn<'b>) (source:seq<'a>) : PGSQLConn<seq<'b>> = 
-    PGSQLConn <| fun conn ->
-        AnswerMonad.traverseM (fun x -> let mf = fn x in apply1 mf conn) source
+    fmapM (List.toSeq) (mapM fn <| Seq.toList source) 
 
 let traverseMz (fn: 'a -> PGSQLConn<'b>) (source:seq<'a>) : PGSQLConn<unit> = 
-    PGSQLConn <| fun conn ->
-        AnswerMonad.traverseMz (fun x -> let mf = fn x in apply1 mf conn) source
+    mapMz fn <| Seq.toList source
 
 let traverseiM (fn:int -> 'a -> PGSQLConn<'b>) (source:seq<'a>) : PGSQLConn<seq<'b>> = 
-    PGSQLConn <| fun conn ->
-        AnswerMonad.traverseiM (fun ix x -> let mf = fn ix x in apply1 mf conn) source
+    fmapM (List.toSeq) (mapiM fn <| Seq.toList source) 
 
 let traverseiMz (fn:int -> 'a -> PGSQLConn<'b>) (source:seq<'a>) : PGSQLConn<unit> = 
-    PGSQLConn <| fun conn ->
-        AnswerMonad.traverseiMz (fun ix x -> let mf = fn ix x in apply1 mf conn) source
+    mapiMz fn <| Seq.toList source
 
+
+/// Dies no first error...
 let sequenceM (source:PGSQLConn<'a> list) : PGSQLConn<'a list> = 
     PGSQLConn <| fun conn ->
-        AnswerMonad.sequenceM <| List.map (fun ma -> apply1 ma conn) source
+        let rec work ac xs = 
+            match xs with
+            | mf :: fs -> 
+                match apply1 mf conn with
+                | Failure msg -> Failure msg
+                | Success a -> work  (a::ac) fs
+            | [] -> Success (List.rev ac)
+        work [] source
 
 let sequenceMz (source:PGSQLConn<'a> list) : PGSQLConn<unit> = 
     PGSQLConn <| fun conn ->
-        AnswerMonad.sequenceMz <| List.map (fun ma -> apply1 ma conn) source
+        let rec work xs = 
+            match xs with
+            | mf :: fs -> 
+                match apply1 mf conn with
+                | Failure msg -> Failure msg
+                | Success a -> work fs
+            | [] -> Success ()
+        work source
 
 
 // Summing variants
@@ -128,12 +233,35 @@ let sumTraverseiM (fn:int -> 'a -> PGSQLConn<int>) (source:seq<'a>) : PGSQLConn<
     fmapM Seq.sum <| traverseiM fn source
 
 let sumSequenceM (source:PGSQLConn<int> list) : PGSQLConn<int> = 
-    PGSQLConn <| fun conn ->
-        AnswerMonad.sumSequenceM (List.map (fun mf -> apply1 mf conn) source)
+    fmapM List.sum <| sequenceM source
 
 
-// PGSQLConn-specific operations
-let runPGSQLConn (connParams:PGSQLConnParams) (ma:PGSQLConn<'a>) : Answer<'a> = 
+// *************************************
+// Errors
+
+let throwError (msg:string) : PGSQLConn<'a> = 
+    PGSQLConn <| fun _ -> Failure (connError msg)
+
+let swapError (msg:string) (ma:PGSQLConn<'a>) : PGSQLConn<'a> = 
+    PGSQLConn <| fun conn -> 
+        match apply1 ma conn with
+        | Failure (ConnError (_,stk)) -> Failure (ConnError (msg,stk))
+        | Success a -> Success a
+
+let augmentError (msg:string) (ma:PGSQLConn<'a>) : PGSQLConn<'a> = 
+    PGSQLConn <| fun conn -> 
+        match apply1 ma conn with
+        | Failure stk -> Failure (ConnError (msg,[stk]))
+        | Success a -> Success a
+
+
+// *************************************
+// Run functions
+
+
+
+/// TODO - look at running this in a transaction...
+let runPGSQLConn (connParams:PGSQLConnParams) (ma:PGSQLConn<'a>) : Result<'a> = 
     let conn = paramsConnString connParams 
     try
         let dbconn : NpgsqlConnection = new NpgsqlConnection(conn)
@@ -142,26 +270,20 @@ let runPGSQLConn (connParams:PGSQLConnParams) (ma:PGSQLConn<'a>) : Answer<'a> =
         dbconn.Close()
         a   
     with
-    | err -> Err err.Message
+    | err -> Failure (connError err.Message)
 
 
-let throwError (msg:string) : PGSQLConn<'a> = 
-    PGSQLConn <| fun _ -> Err(msg)
 
-let swapError (msg:string) (ma:PGSQLConn<'a>) : PGSQLConn<'a> = 
-    PGSQLConn <| fun conn -> 
-        AnswerMonad.swapError msg (apply1 ma conn)
 
-let augmentError (fn:string -> string) (ma:PGSQLConn<'a>) : PGSQLConn<'a> = 
-    PGSQLConn <| fun conn -> 
-        AnswerMonad.augmentError fn (apply1 ma conn)
 
 let liftConn (proc:NpgsqlConnection -> 'a) : PGSQLConn<'a> = 
     PGSQLConn <| fun conn -> 
         try 
-            let ans = proc conn in Ok (ans)
+            let ans = proc conn in Success ans
         with
-        | err -> Err (err.ToString ())  // ToString shows stack trace
+        | err -> Failure (connError <| err.ToString ())  // ToString shows stack trace
+
+
 
 let execNonQuery (statement:string) : PGSQLConn<int> = 
     liftConn <| fun conn -> 
@@ -234,14 +356,14 @@ let execReaderSingleton (statement:string) (proc:NpgsqlDataReader -> 'a) : PGSQL
                 let hasMore =  reader.Read()
                 reader.Close()
                 if not hasMore then
-                    Ok <| ans
+                    Success <| ans
                 else 
-                    Err <| "execReaderSingleton - too many results."
+                    Failure <| connError "execReaderSingleton - too many results."
             else
                 reader.Close ()
-                Err <| "execReaderSingleton - no results."
+                Failure <| connError "execReaderSingleton - no results."
         with
-        | ex -> Err(ex.ToString())
+        | ex -> Failure (connError <| ex.ToString())
 
 /// Err if no answers
 let execReaderFirst (statement:string) (proc:NpgsqlDataReader -> 'a) : PGSQLConn<'a> =
@@ -252,24 +374,25 @@ let execReaderFirst (statement:string) (proc:NpgsqlDataReader -> 'a) : PGSQLConn
             if reader.Read() then
                 let ans = proc reader
                 reader.Close()
-                Ok <| ans
+                Success <| ans
             else
                 reader.Close ()
-                Err <| "execReaderFirst - no results."
+                Failure <| connError "execReaderFirst - no results."
         with
-        | ex -> Err(ex.ToString())
+        | ex -> Failure (connError <| ex.ToString())
 
-// With error handling added to the monad we should be able to rollback instead...
+/// TODO - the toplevel run-function should (probably) be within a transaction
+/// so it can rollback. Then we don't need this function.
 let withTransaction (ma:PGSQLConn<'a>) : PGSQLConn<'a> = 
     PGSQLConn <| fun conn -> 
         let trans = conn.BeginTransaction(System.Data.IsolationLevel.ReadCommitted)
         try 
             let ans = apply1 ma conn
             match ans with
-            | Ok(a) -> trans.Commit () ; ans
-            | Err(msg) -> trans.Rollback () ; ans
+            | Success a -> trans.Commit () ; ans
+            | Failure msg -> trans.Rollback () ; ans
         with 
-        | ex -> trans.Rollback() ; Err( ex.ToString() )
+        | ex -> trans.Rollback() ; Failure (connError <| ex.ToString() )
         
 
 

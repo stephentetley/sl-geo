@@ -14,14 +14,20 @@ open SL.PostGIS.ScriptMonad
 // Common Script type for working with PGSQL connections
 type Script<'a> = ScriptMonad<PGSQLConnParams,'a>
 
+let liftResult (result:Result<'a>) : ScriptMonad<'r,'a> = 
+    match result with
+    | Success a -> sreturn a
+    | Failure stk -> throwError (getErrorLog stk)
+
+
 let withConnParams (fn:PGSQLConnParams -> Script<'a>) : Script<'a> = 
     scriptMonad.Bind (ask (), fn)
 
-let liftWithConnParams (fn:PGSQLConnParams -> Answer<'a>) : Script<'a> = 
-    withConnParams <| (liftAnswer << fn)
+let liftWithConnParams (fn:PGSQLConnParams -> Result<'a>) : Script<'a> = 
+    withConnParams <| (liftResult << fn)
 
 let liftPGSQLConn (pgsql:PGSQLConn<'a>) : Script<'a> = 
-    withConnParams <| fun conn -> liftAnswer <| runPGSQLConn conn pgsql
+    withConnParams <| fun conn -> liftResult <| runPGSQLConn conn pgsql
 
 let private singletonWithReader (query:string) (proc:NpgsqlDataReader -> 'a) : Script<'a> = 
     liftPGSQLConn <| execReaderSingleton query proc
