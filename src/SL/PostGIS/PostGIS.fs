@@ -5,36 +5,18 @@ module SL.PostGIS.PostGIS
 
 open Npgsql
 
-open SL.Base.ErrorTrace
-open SL.Base.AnswerMonad
-open SL.Base.PGSQLConn
+
+open SL.Base
 open SL.Geo.Coord
 open SL.Geo.WellKnownText
 open SL.PostGIS.ScriptMonad
 // open SL.Base
 
-// Common Script type for working with PGSQL connections
-type Script<'a> = ScriptMonad<PGSQLConnParams,'a>
-
-let liftResult (result:Result<'a>) : ScriptMonad<'r,'a> = 
-    match result with
-    | Success a -> sreturn a
-    | Failure stk -> throwError (getErrorTrace stk)
 
 
-let withConnParams (fn:PGSQLConnParams -> Script<'a>) : Script<'a> = 
-    scriptMonad.Bind (ask (), fn)
-
-let liftWithConnParams (fn:PGSQLConnParams -> Result<'a>) : Script<'a> = 
-    withConnParams <| (liftResult << fn)
-
-/// Note this is now a bad name as the underlying PGSQLConn functiona name
-/// has changed.
-let liftPGSQLConn (pgsql:PGSQLConn<'a>) : Script<'a> = 
-    withConnParams <| fun conn -> liftResult <| atomically conn pgsql
 
 let private singletonWithReader (query:string) (proc:NpgsqlDataReader -> 'a) : Script<'a> = 
-    liftPGSQLConn <| execReaderSingleton query proc
+    liftPGSQLConn <| PGSQLConn.execReaderSingleton query proc
 
 let private singletonAsText1 (query:string) : Script<string> = 
     singletonWithReader query <| fun reader -> reader.GetString(0)

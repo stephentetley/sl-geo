@@ -18,9 +18,8 @@ open Npgsql
 #r "FParsec"
 #r "FParsecCS"
 
-
+#load @"SL\Base\ErrorTrace.fs"
 #load @"SL\Base\SqlUtils.fs"
-#load @"SL\Base\AnswerMonad.fs"
 #load @"SL\Base\PGSQLConn.fs"
 #load @"SL\Base\ExcelProviderHelper.fs"
 #load @"SL\Base\Grouping.fs"
@@ -31,7 +30,6 @@ open Npgsql
 #load @"SL\PostGIS\PostGIS.fs"
 #load @"SL\Scripts\CsvOutput.fs"
 #load @"SL\Scripts\PostGISHulls.fs"
-open SL.Base.AnswerMonad
 open SL.Base.PGSQLConn
 open SL.Base.ExcelProviderHelper
 open SL.Base.Grouping

@@ -21,9 +21,8 @@ open Npgsql
 
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 
-
+#load @"SL\Base\ErrorTrace.fs"
 #load @"SL\Base\SqlUtils.fs"
-#load @"SL\Base\AnswerMonad.fs"
 #load @"SL\Base\PGSQLConn.fs"
 #load @"SL\Base\ExcelProviderHelper.fs"
 #load @"SL\Geo\Tolerance.fs"
@@ -77,7 +76,7 @@ let insertRows (rows:seq<SiteListRow>) : Script<int> =
         match makeDWithinINSERT row with
         | Some sql -> execNonQuery sql
         | None -> pgsqlConn.Return 0
-    liftPGSQLConn << withTransaction <| SL.Base.PGSQLConn.sumTraverseM proc1 rows
+    liftPGSQLConn <| SL.Base.PGSQLConn.sumTraverseM proc1 rows
 
 
 let SetupDB(password:string) : unit = 
@@ -144,5 +143,6 @@ let main (password:string) : unit =
                 let! rows = SL.PostGIS.ScriptMonad.mapM makeOutputRow sites
                 let csvProc:CsvOutput<unit> = 
                     SL.Scripts.CsvOutput.writeRowsWithHeaders csvHeaders rows
-                do! liftAction <| SL.Scripts.CsvOutput.outputToNew {Separator=","} csvProc outputFile
+                do (SL.Scripts.CsvOutput.outputToNew {Separator=","} csvProc outputFile)
+                return ()
                 }

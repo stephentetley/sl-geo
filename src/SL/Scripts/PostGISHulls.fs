@@ -60,7 +60,8 @@ let private genHullsCsv (make1:Grouping<'Key,'a> -> Script<'Key * WellKnownText<
         let rows = 
             Seq.mapi (fun ix (key,wkt,elts) -> dict.MakeCsvRow ix key wkt elts) <| filterPOLYGONs hulls
         let csvProc:CsvOutput<unit> = writeRowsWithHeaders dict.CsvHeaders rows
-        do! liftAction <| outputToNew {Separator=","} csvProc outputFile
+        do (outputToNew {Separator=","} csvProc outputFile)
+        return ()
         }
 
 

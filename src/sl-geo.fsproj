@@ -54,9 +54,8 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="SL\Base\SqlUtils.fs" />
     <Compile Include="SL\Base\ErrorTrace.fs" />
-    <Compile Include="SL\Base\AnswerMonad.fs" />
+    <Compile Include="SL\Base\SqlUtils.fs" />
     <Compile Include="SL\Base\PGSQLConn.fs" />
     <Compile Include="SL\Base\Grouping.fs" />
     <Compile Include="SL\Base\ExcelProviderHelper.fs" />

@@ -151,10 +151,9 @@ let foriM (xs:'a list) (fn:int -> 'a -> PGSQLConn<'b>) : PGSQLConn<'b list> =
 
 
 
-// Note - Seq going through list seems better than anything I can manage directly
-// either with recursion (bursts the stack) or an enumerator (very slow)
-// The moral is `traverse` is a bad API (currently)
-
+/// Note - Seq going through list seems better than anything I can manage directly
+/// either with recursion (bursts the stack) or an enumerator (very slow)
+/// The moral is `traverse` is a bad API (currently)
 let traverseM (fn: 'a -> PGSQLConn<'b>) (source:seq<'a>) : PGSQLConn<seq<'b>> = 
     fmapM (List.toSeq) (mapM fn <| Seq.toList source) 
 
@@ -168,7 +167,7 @@ let traverseiMz (fn:int -> 'a -> PGSQLConn<'b>) (source:seq<'a>) : PGSQLConn<uni
     mapiMz fn <| Seq.toList source
 
 
-/// Dies no first error...
+/// Shortcuts on first error...
 let sequenceM (source:PGSQLConn<'a> list) : PGSQLConn<'a list> = 
     PGSQLConn <| fun conn ->
         let rec work ac xs = 

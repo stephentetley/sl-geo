@@ -18,7 +18,7 @@ open Npgsql
 
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 
-#load @"SL\Base\AnswerMonad.fs"
+#load @"SL\Base\ErrorTrace.fs"
 #load @"SL\Base\SqlUtils.fs"
 #load @"SL\Base\PGSQLConn.fs"
 #load @"SL\Geo\Tolerance.fs"
@@ -83,7 +83,7 @@ let makeOutfallINSERT (row:OutfallRow) : string =
 let insertOutfalls () : Script<int> = 
     let rows = getOutfalls ()
     let proc1 (row:OutfallRow) : PGSQLConn<int> = execNonQuery <| makeOutfallINSERT row
-    liftPGSQLConn << withTransaction <| SL.Base.PGSQLConn.sumForM rows proc1
+    liftPGSQLConn <| SL.Base.PGSQLConn.sumForM rows proc1
 
 
 
@@ -185,5 +185,6 @@ let OutputNN(password:string) : unit =
                 let rows1:seq<NeighboursRow> = getDataForNeighbours ()
                 let! (rows2:seq<OutputRow>) = SL.PostGIS.ScriptMonad.traverseM (genOutputRow 5) rows1
                 let csvProc:CsvOutput<unit> = writeRecordsWithHeaders csvHeaders rows2 tellOutputRow
-                do! liftAction <| outputToNew {Separator=","} csvProc outFile
+                do (outputToNew {Separator=","} csvProc outFile)
+                return ()
                 }

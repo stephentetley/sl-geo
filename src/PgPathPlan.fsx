@@ -19,9 +19,10 @@ open Npgsql
 #r "FSharpx.Collections"
 open FSharpx.Collections
 
-
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
-#load @"SL\Base\AnswerMonad.fs"
+
+
+#load @"SL\Base\ErrorTrace.fs"
 #load @"SL\Base\SqlUtils.fs"
 #load @"SL\Base\PGSQLConn.fs"
 #load @"SL\Geo\Tolerance.fs"
@@ -121,7 +122,8 @@ let test03 (password:string) : unit =
     runConsoleScript (printfn "Success: %A") conn 
         <| scriptMonad { 
             let! vs = findOutwardEdges startPt
-            do! liftAction (List.iter (printfn "Edge: %A") vs)
+            do (List.iter (printfn "Edge: %A") vs)
+            return ()
             }
 
 
@@ -132,7 +134,8 @@ let test04 (password:string) : unit =
             let! startNode = findNode "Station" "Bradford Forster Square"
             let! forest = buildLinkForest startNode.GridRef
             do! outputDot "plan" forest @"G:\work\working\output1.dot"
-            do! liftAction (printfn "%s" <| drawLinkForest forest)
+            do (printfn "%s" <| drawLinkForest forest)
+            return ()
             }
 
 

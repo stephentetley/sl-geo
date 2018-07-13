@@ -173,7 +173,8 @@ let generateNearestHospitalsCsv (dict:NearestHospitalDict<'asset>) (source:'asse
         let! xs = nearestHospitals dict.ExtractLocation source
         let! (rowWriters:seq<RowWriter>) = SL.PostGIS.ScriptMonad.traverseM rowProc xs
         let csvProc:CsvOutput<unit> = writeRowsWithHeaders dict.CsvHeaders rowWriters
-        do! liftAction <| SL.Scripts.CsvOutput.outputToNew {Separator=","} csvProc outputFile
+        do (SL.Scripts.CsvOutput.outputToNew {Separator=","} csvProc outputFile)
+        return ()
     }
 
 

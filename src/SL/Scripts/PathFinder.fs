@@ -101,14 +101,14 @@ let insertNodes (dict:PathFindInsertDict<'noderow,'edgerow>) (source:seq<'nodero
         match dict.TryMakeUserLandNode row with
         | Some node -> execNonQuery <| makeNodeInsertStmt node
         | None -> pgsqlConn.Return 0
-    liftPGSQLConn << withTransaction <| SL.Base.PGSQLConn.sumTraverseM proc1 source
+    liftPGSQLConn <| SL.Base.PGSQLConn.sumTraverseM proc1 source
 
 let insertEdges (dict:PathFindInsertDict<'noderow,'edgerow>) (source:seq<'edgerow>) : Script<int> = 
     let proc1 (row:'edgerow) : PGSQLConn<int> = 
         match dict.TryMakeUserLandEdge row with
         | Some edge -> execNonQuery <| makeEdgeInsertStmt edge
         | None -> pgsqlConn.Return 0
-    liftPGSQLConn << withTransaction <| SL.Base.PGSQLConn.sumTraverseM proc1 source
+    liftPGSQLConn <| SL.Base.PGSQLConn.sumTraverseM proc1 source
 
 
 
@@ -689,6 +689,7 @@ let outputDot (graphName:string) (forest:LinkForest) (fileName:string) : Script<
         let! tree   = extractPathTree pathTreeDict forest
         let! routes = extractAllRoutes graphvizDict forest
         let gvProc  = generateDot graphName tree routes
-        do! liftAction (runGraphvizOutputFile fileName gvProc)
+        do (runGraphvizOutputFile fileName gvProc)
+        return ()
         }
             

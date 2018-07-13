@@ -21,7 +21,6 @@ open Npgsql
 
 #load @"SL\Base\ErrorTrace.fs"
 #load @"SL\Base\SQLUtils.fs"
-#load @"SL\Base\AnswerMonad.fs"
 #load @"SL\Base\PGSQLConn.fs"
 #load @"SL\Base\ExcelProviderHelper.fs"
 #load @"SL\Geo\Tolerance.fs"

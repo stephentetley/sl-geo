@@ -63,7 +63,7 @@ let insertVertices (dict:TspNodeInsertDict<'row>) (vertices:seq<'row>) : Script<
 
     let goodData = Seq.choose id <| Seq.map good1 vertices 
 
-    liftPGSQLConn << withTransaction <| SL.Base.PGSQLConn.sumTraverseM proc1 goodData
+    liftPGSQLConn <| SL.Base.PGSQLConn.sumTraverseM proc1 goodData
 
 let setupTspNodeDB (dict:TspNodeInsertDict<'row>) (vertices:seq<'row>) : Script<int> = 
     scriptMonad { 
@@ -163,7 +163,8 @@ let generateTspRouteCsv (dict:TspPrintRouteStepDict) (startId:int) (endId:int) (
         let! steps = eucledianTSP startId endId
         let rows = List.map dict.MakeCsvRow steps
         let csvProc:CsvOutput<unit> = writeRowsWithHeaders dict.CsvHeaders rows
-        do! liftAction <| outputToNew {Separator=","} csvProc outputFile
+        do (outputToNew {Separator=","} csvProc outputFile)
+        return ()
         }
 
 
