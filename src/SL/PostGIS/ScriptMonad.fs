@@ -9,6 +9,11 @@ open SL.Base.AnswerMonad
 open SL.Base
 
 
+//type Result<'a> = 
+//    | Ok of 'a
+//    | Error of string
+//    | FatalError of string
+
 
 type LogAction = StringWriter -> unit
 

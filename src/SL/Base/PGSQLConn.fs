@@ -3,11 +3,10 @@
 
 module SL.Base.PGSQLConn
 
-open System.Text
-
 
 open Npgsql
 
+open SL.Base.ErrorTrace
 open SL.Base.SqlUtils
 
 
@@ -23,31 +22,10 @@ open SL.Base.SqlUtils
 
 
 
-type ConnError = ConnError of string * list<ConnError>
-
-let getErrorLog (err:ConnError) : string = 
-    let writeLine (depth:int) (str:string) (sb:StringBuilder) : StringBuilder = 
-        let line = sprintf "%s %s" (String.replicate depth "*") str
-        sb.AppendLine(line)
-    let rec work (e1:ConnError) (depth:int) (sb:StringBuilder) : StringBuilder  = 
-        match e1 with
-        | ConnError (s,[]) -> writeLine depth s sb
-        | ConnError (s,xs) ->
-            let sb1 = writeLine depth s sb
-            List.fold (fun buf branch -> work branch (depth+1) buf) sb1 xs
-    work err 0 (new StringBuilder()) |> fun sb -> sb.ToString()
-
-/// Create a fresh ConnError
-let private connError (errMsg:string) : ConnError = 
-    ConnError(errMsg, [])
-
-let private concatParseErrors (errMsg:string) (failures:ConnError list) : ConnError = 
-    ConnError(errMsg, failures)
-
 
 type Result<'a> = 
     | Success of 'a
-    | Failure of ConnError
+    | Failure of ErrorTrace
 
 
 
@@ -87,7 +65,7 @@ let inline private bindM (ma:PGSQLConn<'a>) (f : 'a -> PGSQLConn<'b>) : PGSQLCon
 
 
 let inline pgzero () : PGSQLConn<'a> = 
-    PGSQLConn <| fun _ -> Failure (connError "pgzero")
+    PGSQLConn <| fun _ -> Failure (errorTrace1 "pgzero")
 
 
 
@@ -242,18 +220,18 @@ let sumSequenceM (source:PGSQLConn<int> list) : PGSQLConn<int> =
 // Errors
 
 let throwError (msg:string) : PGSQLConn<'a> = 
-    PGSQLConn <| fun _ -> Failure (connError msg)
+    PGSQLConn <| fun _ -> Failure (errorTrace1 msg)
 
 let swapError (msg:string) (ma:PGSQLConn<'a>) : PGSQLConn<'a> = 
     PGSQLConn <| fun conn -> 
         match apply1 ma conn with
-        | Failure (ConnError (_,stk)) -> Failure (ConnError (msg,stk))
+        | Failure stk -> Failure (renameTraceTop msg stk)
         | Success a -> Success a
 
 let augmentError (msg:string) (ma:PGSQLConn<'a>) : PGSQLConn<'a> = 
     PGSQLConn <| fun conn -> 
         match apply1 ma conn with
-        | Failure stk -> Failure (ConnError (msg,[stk]))
+        | Failure stk -> Failure (augmentErrorTrace msg stk)
         | Success a -> Success a
 
 
@@ -273,7 +251,7 @@ let private atomically1 (pgconn : NpgsqlConnection) (ma:PGSQLConn<'a>) : Result<
         | Success a -> trans.Commit () ; pgconn.Close(); ans
         | Failure msg -> trans.Rollback () ; pgconn.Close(); ans
     with
-    | ex -> trans.Rollback();  pgconn.Close(); Failure (connError <| ex.ToString() )
+    | ex -> trans.Rollback();  pgconn.Close(); Failure (errorTrace1 <| ex.ToString() )
 
 
 /// Run the script guarded by a transaction / rollback.
@@ -284,7 +262,9 @@ let atomically (connParams:PGSQLConnParams) (ma:PGSQLConn<'a>) : Result<'a> =
         let pgconn : NpgsqlConnection = new NpgsqlConnection(connStr)
         atomically1 pgconn ma  
     with
-    | err -> printfn "FAILURE: %s" err.Message; Failure (connError err.Message)
+    | err -> 
+        printfn "FAILURE: %s" err.Message
+        Failure (errorTrace1 err.Message)
 
 
 /// Run the script without the guard of a transaction / rollback.
@@ -297,7 +277,7 @@ let runUnguarded (connParams:PGSQLConnParams) (ma:PGSQLConn<'a>) : Result<'a> =
         pgconn.Close()
         a   
     with
-    | err -> Failure (connError err.Message)
+    | err -> Failure (errorTrace1 err.Message)
 
 
 
@@ -306,7 +286,7 @@ let liftConn (proc:NpgsqlConnection -> 'a) : PGSQLConn<'a> =
         try 
             let ans = proc conn in Success ans
         with
-        | err -> Failure (connError <| err.ToString ())  // ToString shows stack trace
+        | err -> Failure (errorTrace1 <| err.ToString ())  // ToString shows stack trace
 
 
 
@@ -383,12 +363,12 @@ let execReaderSingleton (statement:string) (proc:NpgsqlDataReader -> 'a) : PGSQL
                 if not hasMore then
                     Success <| ans
                 else 
-                    Failure <| connError "execReaderSingleton - too many results."
+                    Failure <| errorTrace1 "execReaderSingleton - too many results."
             else
                 reader.Close ()
-                Failure <| connError "execReaderSingleton - no results."
+                Failure <| errorTrace1 "execReaderSingleton - no results."
         with
-        | ex -> Failure (connError <| ex.ToString())
+        | ex -> Failure (errorTrace1 <| ex.ToString())
 
 /// Err if no answers
 let execReaderFirst (statement:string) (proc:NpgsqlDataReader -> 'a) : PGSQLConn<'a> =
@@ -402,9 +382,9 @@ let execReaderFirst (statement:string) (proc:NpgsqlDataReader -> 'a) : PGSQLConn
                 Success <| ans
             else
                 reader.Close ()
-                Failure <| connError "execReaderFirst - no results."
+                Failure <| errorTrace1 "execReaderFirst - no results."
         with
-        | ex -> Failure (connError <| ex.ToString())
+        | ex -> Failure (errorTrace1 <| ex.ToString())
 
 
 

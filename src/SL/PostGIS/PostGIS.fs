@@ -5,11 +5,13 @@ module SL.PostGIS.PostGIS
 
 open Npgsql
 
+open SL.Base.ErrorTrace
 open SL.Base.AnswerMonad
 open SL.Base.PGSQLConn
 open SL.Geo.Coord
 open SL.Geo.WellKnownText
 open SL.PostGIS.ScriptMonad
+// open SL.Base
 
 // Common Script type for working with PGSQL connections
 type Script<'a> = ScriptMonad<PGSQLConnParams,'a>
@@ -17,7 +19,7 @@ type Script<'a> = ScriptMonad<PGSQLConnParams,'a>
 let liftResult (result:Result<'a>) : ScriptMonad<'r,'a> = 
     match result with
     | Success a -> sreturn a
-    | Failure stk -> throwError (getErrorLog stk)
+    | Failure stk -> throwError (getErrorTrace stk)
 
 
 let withConnParams (fn:PGSQLConnParams -> Script<'a>) : Script<'a> = 

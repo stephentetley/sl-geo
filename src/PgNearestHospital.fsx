@@ -19,6 +19,7 @@ open Npgsql
 #r "FParsec"
 #r "FParsecCS"
 
+#load @"SL\Base\ErrorTrace.fs"
 #load @"SL\Base\SQLUtils.fs"
 #load @"SL\Base\AnswerMonad.fs"
 #load @"SL\Base\PGSQLConn.fs"
