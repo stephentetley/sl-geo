@@ -1,16 +1,17 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-#I @"..\packages\FSharp.Data.3.0.0-beta3\lib\net45"
+#I @"..\packages\FSharp.Data.3.0.0-beta4\lib\net45"
 #r @"FSharp.Data.dll"
 open FSharp.Data
 
-#I @"..\packages\Npgsql.4.0.0-preview2\lib\net451"
-#I @"..\packages\System.Threading.Tasks.Extensions.4.4.0\lib\portable-net45+win8+wp8+wpa81"
+#I @"..\packages\System.Runtime.CompilerServices.Unsafe.4.5.0\lib\netstandard2.0"
+#I @"..\packages\Npgsql.4.0.2\lib\net451"
+#I @"..\packages\System.Threading.Tasks.Extensions.4.5.0\lib\portable-net45+win8+wp8+wpa81"
 #r "Npgsql"
 open Npgsql
 
-#I @"..\packages\FParsec.1.0.3\lib\net40-client"
+#I @"..\packages\FParsec.1.0.4-RC3\lib\portable-net45+win8+wp8+wpa81"
 #r "FParsec"
 #r "FParsecCS"
 

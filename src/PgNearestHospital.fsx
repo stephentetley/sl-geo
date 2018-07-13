@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-#I @"..\packages\FSharp.Data.3.0.0-beta3\lib\net45"
+#I @"..\packages\FSharp.Data.3.0.0-beta4\lib\net45"
 #r @"FSharp.Data.dll"
 open FSharp.Data
 
@@ -10,12 +10,13 @@ open FSharp.Data
 open FSharp.ExcelProvider
 
 
-#I @"..\packages\Npgsql.4.0.0-preview2\lib\net451"
-#I @"..\packages\System.Threading.Tasks.Extensions.4.4.0\lib\portable-net45+win8+wp8+wpa81"
+#I @"..\packages\System.Runtime.CompilerServices.Unsafe.4.5.0\lib\netstandard2.0"
+#I @"..\packages\Npgsql.4.0.2\lib\net451"
+#I @"..\packages\System.Threading.Tasks.Extensions.4.5.0\lib\portable-net45+win8+wp8+wpa81"
 #r "Npgsql"
 open Npgsql
 
-#I @"..\packages\FParsec.1.0.3\lib\net40-client"
+#I @"..\packages\FParsec.1.0.4-RC3\lib\portable-net45+win8+wp8+wpa81"
 #r "FParsec"
 #r "FParsecCS"
 
@@ -23,18 +24,18 @@ open Npgsql
 #load @"SL\Base\SQLUtils.fs"
 #load @"SL\Base\PGSQLConn.fs"
 #load @"SL\Base\ExcelProviderHelper.fs"
+#load @"SL\Base\CsvOutput.fs"
 #load @"SL\Geo\Tolerance.fs"
 #load @"SL\Geo\Coord.fs"
 #load @"SL\Geo\WellKnownText.fs"
 #load @"SL\PostGIS\ScriptMonad.fs"
 #load @"SL\PostGIS\PostGIS.fs"
-#load @"SL\Scripts\CsvOutput.fs"
 #load @"SL\Scripts\NearestHospital.fs"
 open SL.Base.PGSQLConn
 open SL.Base.ExcelProviderHelper
+open SL.Base.CsvOutput
 open SL.Geo.Coord
 open SL.Geo.WellKnownText
-open SL.Scripts.CsvOutput
 open SL.PostGIS.ScriptMonad
 open SL.Scripts.NearestHospital
 
