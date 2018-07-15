@@ -7,7 +7,6 @@ module SL.Base.PGSQLConn
 open Npgsql
 
 open SL.Base.ErrorTrace
-open SL.Base.SqlUtils
 
 
 
@@ -56,7 +55,7 @@ let inline private apply1 (ma : PGSQLConn<'a>) (conn:NpgsqlConnection) : Result<
     let (PGSQLConn f) = ma in f conn
 
 
-let inline private pgreturn (x:'a) : PGSQLConn<'a> = 
+let inline pgreturn (x:'a) : PGSQLConn<'a> = 
     PGSQLConn (fun _ -> Success x)
 
 
@@ -93,12 +92,22 @@ type PGSQLConnBuilder() =
 let (pgsqlConn:PGSQLConnBuilder) = new PGSQLConnBuilder()
 
 
+let (>>=) (ma:PGSQLConn<'a>) (fn : 'a -> PGSQLConn<'b>) : PGSQLConn<'b> = 
+    bindM ma fn
+
 // Common operations
 let fmapM (fn:'a -> 'b) (ma:PGSQLConn<'a>) : PGSQLConn<'b> = 
     PGSQLConn <| fun conn ->
        match apply1 ma conn with
        | Success ans -> Success <| fn ans
        | Failure msg -> Failure msg
+
+
+let (|>>) (fn:'a -> 'b) (ma:PGSQLConn<'a>) : PGSQLConn<'b> = 
+    fmapM fn ma
+
+let (<<|) (ma:PGSQLConn<'a>) (fn:'a -> 'b) : PGSQLConn<'b> = 
+    fmapM fn ma
 
 let mapM (fn:'a -> PGSQLConn<'b>) (source:'a list) : PGSQLConn<'b list> = 
     PGSQLConn <| fun conn ->

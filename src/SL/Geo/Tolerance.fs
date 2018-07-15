@@ -5,6 +5,10 @@ module SL.Tolerance
 
 open System
 
+/// TODO
+/// We probably don't need this module if the major of "Geoprocessing" is delegated to 
+/// PostGIS.
+
 type Tolerance = 
     {TOL:decimal}
     member v.tolerance = v.TOL

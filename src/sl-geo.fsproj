@@ -62,10 +62,14 @@
     <Compile Include="SL\Base\CsvOutput.fs" />
     <Compile Include="SL\Base\NameGen.fs" />
     <Compile Include="SL\Base\GraphvizOutput.fs" />
+    <Compile Include="SL\Geo\Base.fs" />
     <Compile Include="SL\Geo\Tolerance.fs" />
     <Compile Include="SL\Geo\Coord.fs" />
     <Compile Include="SL\Geo\WellKnownText.fs" />
+    <Compile Include="SL\Geo\WGS84.fs" />
+    <Compile Include="SL\Geo\OSGB36.fs" />
     <Compile Include="SL\Geo\WebMercator.fs" />
+    <Compile Include="SL\Geo\SRTransform.fs" />
     <Compile Include="SL\PostGIS\ScriptMonad.fs" />
     <Compile Include="SL\PostGIS\PostGIS.fs" />
     <Compile Include="SL\Scripts\TspRouting.fs" />
@@ -81,6 +85,7 @@
     <None Include="PgPathPlan.fsx" />
     <None Include="PgOutfalls.fsx" />
     <None Include="TestGeo.fsx" />
+    <None Include="TestPostGIS.fsx" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -105,12 +110,33 @@
     <Reference Include="FSharpx.Collections">
       <HintPath>..\packages\FSharpx.Collections.2.0.0-beta3\lib\net45\FSharpx.Collections.dll</HintPath>
     </Reference>
+    <Reference Include="GeoAPI">
+      <HintPath>..\packages\GeoAPI.Core.1.7.5\lib\net45\GeoAPI.dll</HintPath>
+    </Reference>
+    <Reference Include="GeoAPI.CoordinateSystems">
+      <HintPath>..\packages\GeoAPI.CoordinateSystems.1.7.5\lib\net45\GeoAPI.CoordinateSystems.dll</HintPath>
+    </Reference>
     <Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>..\packages\ExcelProvider.0.8.2\lib\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
-    <Reference Include="mscorlib" />
+    <Reference Include="NetTopologySuite">
+      <HintPath>..\packages\NetTopologySuite.Core.1.15.0\lib\net45\NetTopologySuite.dll</HintPath>
+    </Reference>
+    <Reference Include="NetTopologySuite.CoordinateSystems">
+      <HintPath>..\packages\NetTopologySuite.CoordinateSystems.1.15.0\lib\net45\NetTopologySuite.CoordinateSystems.dll</HintPath>
+    </Reference>
+    <Reference Include="NetTopologySuite.IO">
+      <HintPath>..\packages\NetTopologySuite.IO.1.15.0-pre1\lib\net45\NetTopologySuite.IO.dll</HintPath>
+    </Reference>
     <Reference Include="Npgsql">
       <HintPath>..\packages\Npgsql.4.0.2\lib\net451\Npgsql.dll</HintPath>
+    </Reference>
+    <Reference Include="mscorlib" />
+    <Reference Include="Npgsql.NetTopologySuite">
+      <HintPath>..\packages\Npgsql.NetTopologySuite.1.0.1\lib\net45\Npgsql.NetTopologySuite.dll</HintPath>
+    </Reference>
+    <Reference Include="ProjNET">
+      <HintPath>..\packages\ProjNET4GeoAPI.1.4.0-pre001\lib\net45\ProjNET.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
