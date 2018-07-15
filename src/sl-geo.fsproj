@@ -60,6 +60,8 @@
     <Compile Include="SL\Base\Grouping.fs" />
     <Compile Include="SL\Base\ExcelProviderHelper.fs" />
     <Compile Include="SL\Base\CsvOutput.fs" />
+    <Compile Include="SL\Base\NameGen.fs" />
+    <Compile Include="SL\Base\GraphvizOutput.fs" />
     <Compile Include="SL\Geo\Tolerance.fs" />
     <Compile Include="SL\Geo\Coord.fs" />
     <Compile Include="SL\Geo\WellKnownText.fs" />
@@ -70,8 +72,6 @@
     <Compile Include="SL\Scripts\NearestHospital.fs" />
     <Compile Include="SL\Scripts\PostGISHulls.fs" />
     <Compile Include="SL\Scripts\SiteOrder.fs" />
-    <Compile Include="SL\Scripts\NameGen.fs" />
-    <Compile Include="SL\Scripts\GraphvizOutput.fs" />
     <Compile Include="SL\Scripts\PathFinder.fs" />
     <None Include="PgTspRouting.fsx" />
     <None Include="PgNearestHospital.fsx" />

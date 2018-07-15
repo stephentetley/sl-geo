@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-module SL.Scripts.GraphvizOutput
+module SL.Base.GraphvizOutput
 
 
 open System.IO

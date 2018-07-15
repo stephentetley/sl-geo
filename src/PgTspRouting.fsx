@@ -43,6 +43,7 @@ type StationRow = StationData.Row
 let getStations () : StationRow list = (new StationData ()).Rows |> Seq.toList
 
 
+
 let tspVertexInsertDict:TspNodeInsertDict<StationRow> = 
     { TryMakeNodeLocation = 
         fun (row:StationRow) -> Option.map osgb36ToWGS84 <| tryReadOSGB36Point row.Grid_Ref

@@ -27,13 +27,13 @@ open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 #load @"SL\Base\SqlUtils.fs"
 #load @"SL\Base\PGSQLConn.fs"
 #load @"SL\Base\CsvOutput.fs"
+#load @"SL\Base\NameGen.fs"
+#load @"SL\Base\GraphvizOutput.fs"
 #load @"SL\Geo\Tolerance.fs"
 #load @"SL\Geo\Coord.fs"
 #load @"SL\Geo\WellKnownText.fs"
 #load @"SL\PostGIS\ScriptMonad.fs"
 #load @"SL\PostGIS\PostGIS.fs"
-#load @"SL\Scripts\NameGen.fs"
-#load @"SL\Scripts\GraphvizOutput.fs"
 #load @"SL\Scripts\PathFinder.fs"
 open SL.Base.PGSQLConn
 open SL.Geo.Coord

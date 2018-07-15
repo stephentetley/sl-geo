@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-module SL.Scripts.NameGen
+module SL.Base.NameGen
 
 
 // For Seq.tail

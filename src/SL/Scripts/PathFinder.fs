@@ -12,12 +12,13 @@ open Npgsql
 
 open SL.Base.SqlUtils
 open SL.Base.PGSQLConn
+open SL.Base.NameGen
+open SL.Base.GraphvizOutput
+open SL.Base
 open SL.Geo.Coord
 open SL.Geo.WellKnownText
 open SL.PostGIS.ScriptMonad
 open SL.PostGIS.PostGIS
-open SL.Scripts.NameGen
-open SL.Scripts.GraphvizOutput
 
 /// This is the representation of an edge that is stored in the DB.
 type EdgeRecord =
@@ -350,7 +351,7 @@ let private mapPathTreeM (fn:'a -> NameGen<'b>) (pathTree:PathTree<'a>) : NameGe
                 return PathTree (node1, [])
             | PathTree(node,kids) -> 
                 let! node1 = fn node
-                let! kids1 = SL.Scripts.NameGen.mapM work kids
+                let! kids1 = NameGen.mapM work kids
                 return PathTree(node1,kids1)
             }
     work pathTree
@@ -510,7 +511,7 @@ let extractAllRoutes (dict:ExtractRouteDict<'node,'edge>) (forest:LinkForest) : 
     scriptMonad { 
         let! dbRoutes   = linkForestRoutes forest
         let userRoutes  = 
-            runNameGenOne (sprintf "node%i") <| SL.Scripts.NameGen.mapM (translateRoute dict cache) dbRoutes
+            runNameGenOne (sprintf "node%i") <| NameGen.mapM (translateRoute dict cache) dbRoutes
         return userRoutes 
         }
 
@@ -584,7 +585,7 @@ let graphvizDict : ExtractRouteDict<GraphvizNode, GraphvizEdge> =
 
 
 let genDotNode (node1:GraphvizNode) : GraphvizOutput<unit> = 
-    SL.Scripts.GraphvizOutput.node node1.NodeId [label node1.NodeLabel]
+    SL.Base.GraphvizOutput.node node1.NodeId [label node1.NodeLabel]
 
 /// EdgeCache is (from,to) names
 type EdgeCache = (string * string) list
@@ -665,9 +666,9 @@ let genDotRanks (ranks:Rank list) : GraphvizOutput<unit> =
         anonSubgraph 
             <| graphvizOutput { 
                 do! attrib <| rank "same"
-                do! SL.Scripts.GraphvizOutput.mapMz genDotNode (snd rank1)
+                do! GraphvizOutput.mapMz genDotNode (snd rank1)
                 }
-    SL.Scripts.GraphvizOutput.mapMz rankProc ranks
+    GraphvizOutput.mapMz rankProc ranks
 
 let generateDot (graphName:string) (pathTree: PathTree<GraphvizNode>) (routes: Route<GraphvizNode, GraphvizEdge> list) : GraphvizOutput<unit> = 
     let ranks = extractRanksFromPathTree pathTree
