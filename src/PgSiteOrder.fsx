@@ -54,11 +54,22 @@ type SiteListTable =
 
 type SiteListRow = SiteListTable.Row
 
+//let getSiteListRows () : seq<SiteListRow> = 
+//    let dict : GetRowsDict<SiteListTable, SiteListRow> = 
+//        { GetRows     = fun imports -> imports.Data 
+//          NotNullProc = fun row -> match row.GetValue(0) with null -> false | _ -> true }
+//    excelTableGetRowsSeq dict (new SiteListTable())
+
+/// Use object expressions / interfaces as per F# design guidelines...
 let getSiteListRows () : seq<SiteListRow> = 
-    let dict : GetRowsDict<SiteListTable, SiteListRow> = 
-        { GetRows     = fun imports -> imports.Data 
-          NotNullProc = fun row -> match row.GetValue(0) with null -> false | _ -> true }
-    excelTableGetRowsSeq dict (new SiteListTable())
+    let dict () = 
+        { new IExcelProviderHelper<SiteListTable,SiteListRow>
+          with member this.GetTableRows table = table.Data 
+               member this.IsBlankRow row = match row.GetValue(0) with null -> true | _ -> false }
+         
+    excelGetRows (dict ()) (new SiteListTable())
+
+
 
 let filterOutMoreInfo (rows:seq<SiteListRow>) : seq<SiteListRow> = 
     Seq.filter (fun (row:SiteListRow) ->

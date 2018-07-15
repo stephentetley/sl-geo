@@ -16,6 +16,9 @@ open SL.Base.SqlUtils
 /// the conn monad frequently (c.f Haskell STM monads `automically`), 
 /// rather than design all the code within a single invocation of
 /// the monad.
+///
+/// This is facilitate with the ``atomically`` function.
+///
 /// Potentially a phantom type could be used to inidicate commands 
 /// that must be run atomically.
 
@@ -237,9 +240,6 @@ let augmentError (msg:string) (ma:PGSQLConn<'a>) : PGSQLConn<'a> =
 // *************************************
 // Run functions
 
-
-
-/// TODO - look at running this in a transaction...
 
 let private atomically1 (pgconn : NpgsqlConnection) (ma:PGSQLConn<'a>) : Result<'a> = 
     pgconn.Open()
