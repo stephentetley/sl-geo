@@ -8,8 +8,9 @@ open Npgsql
 open SL.Base.SqlUtils
 open SL.Base.PGSQLConn
 open SL.Base.CsvOutput
-open SL.Geo.Coord
+open SL.Geo.Base
 open SL.Geo.WellKnownText
+open SL.Geo.WGS84
 open SL.PostGIS.ScriptMonad
 open SL.PostGIS.PostGIS
 
@@ -30,7 +31,7 @@ open SL.PostGIS.PostGIS
 
 
 let private deleteAllTSPDbRows () : Script<int> = 
-    liftPGSQLConn <| deleteAllRowsRestartIdentity "spt_tsp_nodes"
+    liftAtomically <| deleteAllRowsRestartIdentity "spt_tsp_nodes"
 
 
 /// wgs84:Longitude is x, wgs84:Latitude is y
@@ -46,7 +47,7 @@ let private makeVertexINSERT (vertex:WGS84Point) (label:string) : string =
 
 /// An asset has a label, it should have a location (but it might not).
 type TspNodeInsertDict<'asset> = 
-    { TryMakeNodeLocation : 'asset -> WGS84Point option
+    { TryMakeNodeLocation : 'asset -> Script<WGS84Point option>
       MakeNodeLabel: 'asset -> string }
 
 
@@ -54,19 +55,23 @@ type TspNodeInsertDict<'asset> =
 /// This procedure associates a row with an Id but the Id is (probably) unknown
 /// to the user when it is returned from pgr_tsp, hence I think we need label 
 /// and a join.
-let insertVertices (dict:TspNodeInsertDict<'row>) (vertices:seq<'row>) : Script<int> = 
+let insertVertices (dict:TspNodeInsertDict<'row>) (vertices:'row list) : Script<int> = 
     let proc1 (point:WGS84Point, label:string) : PGSQLConn<int> = 
         execNonQuery <| makeVertexINSERT point label
     
-    let good1 (row:'row) : (WGS84Point * string) option = 
-         Option.map (fun pt -> (pt, dict.MakeNodeLabel row)) 
-            <| dict.TryMakeNodeLocation row
+    let good1 (row:'row) : Script<(WGS84Point * string) option> = 
+         dict.TryMakeNodeLocation row >>>= fun opt -> 
+            match opt with
+            | None -> sreturn None
+            | Some pt -> sreturn <| Some (pt, dict.MakeNodeLabel row)
+            // Option.map (fun pt -> (pt, dict.MakeNodeLabel row)) 
+    scriptMonad {             
+        let! goodData = fmapM (List.choose id) <| mapM good1 vertices 
+        let! count =  liftAtomically <| SL.Base.PGSQLConn.sumTraverseM proc1 goodData
+        return count
+    }
 
-    let goodData = Seq.choose id <| Seq.map good1 vertices 
-
-    liftPGSQLConn <| SL.Base.PGSQLConn.sumTraverseM proc1 goodData
-
-let setupTspNodeDB (dict:TspNodeInsertDict<'row>) (vertices:seq<'row>) : Script<int> = 
+let setupTspNodeDB (dict:TspNodeInsertDict<'row>) (vertices:'row list) : Script<int> = 
     scriptMonad { 
         let! _      = deleteAllTSPDbRows ()         |> logScript (sprintf "%i rows deleted")
         let! count  = insertVertices dict vertices  |> logScript (sprintf "%i rows inserted") 
@@ -116,7 +121,7 @@ let eucledianTSP (startId:int) (endId:int) : Script<TspRoute> =
         ; GridRef       = gridRef
         ; Cost          = float <| reader.GetDouble(5)
         ; AggCost       = float <| reader.GetDouble(6) } 
-    SL.PostGIS.ScriptMonad.fmapM dropLast << liftPGSQLConn <| execReaderList query procM  
+    SL.PostGIS.ScriptMonad.fmapM dropLast << liftAtomically <| execReaderList query procM  
 
 
 let makeFindIdByLabelQUERY (label:string) : string = 
@@ -126,7 +131,7 @@ let makeFindIdByLabelQUERY (label:string) : string =
 
 let private findIdQuery (query:string) : Script<int> = 
     let procM (reader:NpgsqlDataReader) : int = reader.GetInt32(0)
-    liftPGSQLConn <| execReaderFirst query procM  
+    liftAtomically <| execReaderFirst query procM  
 
 
 let findIdByLabel (label:string) : Script<int> = 
@@ -176,7 +181,7 @@ let generateTspRouteWKT (startId:int) (endId:int) : Script<string> =
     scriptMonad { 
         let! steps = eucledianTSP startId endId
         let (points:WGS84Point list) = getPoints steps
-        return (showWktLineString << WktLineString <| wgs84WktCoordList points)
+        return (showWktLineString << WktLineString <| makeWktCoordList wktIsoWGS84 points)
         }
 
 // New code...

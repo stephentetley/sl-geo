@@ -4,8 +4,8 @@
 module SL.Scripts.SiteOrder
 
 open SL.Base.Grouping
-open SL.Geo.Coord
 open SL.Geo.WellKnownText
+open SL.Geo.WGS84
 open SL.PostGIS.ScriptMonad
 open SL.PostGIS.PostGIS
 open SL.Scripts.TspRouting
@@ -13,14 +13,14 @@ open SL.Scripts.TspRouting
 // Note Scripts.Grouping now feels "not worked out".
 // Potentially this module will replace it.
 
-type LocationExtractor<'T,'point> = 'T -> 'point option
+type LocationExtractor<'T,'point> = 'T -> Script<'point option>
 
-let private pointsFromGrouping (getLocation:LocationExtractor<'T,'point>) (group:Grouping<'Key,'T>) : seq<'point> = 
-    Seq.choose id << Seq.map getLocation <| group.Elements
+let private pointsFromGrouping (getLocation:LocationExtractor<'T,'point>) (group:Grouping<'Key,'T>) : Script<'point list> = 
+    fmapM (List.choose id) << mapM getLocation <| Seq.toList group.Elements
 
 let private getCentroid1 (dict:WktCoordIso<'point,'srid>) (getLocation:LocationExtractor<'T,'point>) (group:Grouping<'Key,'T>) : Script<'point option> = 
     scriptMonad {
-        let (points:seq<'point>) = pointsFromGrouping getLocation group
+        let! (points:'point list) = pointsFromGrouping getLocation group
         let! opt = pgCentroid dict points
         return opt
         }
@@ -39,13 +39,13 @@ let private renumber (source : ('a *'obj) list) : (int * 'obj) list =
 
 type SiteOrderDict<'Key,'elem> = 
     { GroupingOp: 'elem -> 'Key
-      ExtractGridRef: 'elem -> WGS84Point option
+      ExtractGridRef: 'elem -> Script<WGS84Point option>
       ExtractNodeLabel: 'elem -> string }
 
 
 let siteOrder (dict:SiteOrderDict<string,'elem>) (unordered:seq<'elem>) : Script<(int * string) list> = 
     let centroidsTspDict:TspNodeInsertDict<string * WGS84Point option> = 
-        { TryMakeNodeLocation = snd; MakeNodeLabel = fst }
+        { TryMakeNodeLocation = sreturn << snd; MakeNodeLabel = fst }
 
     let sitesTspDict:TspNodeInsertDict<'elem> =  
         { TryMakeNodeLocation = dict.ExtractGridRef

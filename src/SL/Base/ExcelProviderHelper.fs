@@ -26,9 +26,8 @@ type IExcelProviderHelper<'table,'row> =
 
 let excelGetRows (helper:IExcelProviderHelper<'table,'row>) (table:'table) : seq<'row> = 
     let allrows = helper.GetTableRows table
-    allrows |> Seq.filter helper.IsBlankRow
+    allrows |> Seq.filter (not << helper.IsBlankRow)
 
 
 let excelGetRowsAsList (helper:IExcelProviderHelper<'table,'row>) (table:'table) : 'row list = 
-    let allrows = helper.GetTableRows table
-    allrows |> Seq.filter (not << helper.IsBlankRow) |> Seq.toList
+    excelGetRows helper table |> Seq.toList

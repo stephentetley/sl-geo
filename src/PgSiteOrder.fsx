@@ -28,9 +28,11 @@ open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 #load @"SL\Base\ExcelProviderHelper.fs"
 #load @"SL\Base\Grouping.fs"
 #load @"SL\Base\CsvOutput.fs"
-#load @"SL\Geo\Tolerance.fs"
-#load @"SL\Geo\Coord.fs"
+#load @"SL\Geo\Base.fs"
 #load @"SL\Geo\WellKnownText.fs"
+#load @"SL\Geo\WGS84.fs"
+#load @"SL\Geo\OSGB36.fs"
+#load @"SL\Geo\SRTransform.fs"
 #load @"SL\PostGIS\ScriptMonad.fs"
 #load @"SL\PostGIS\PostGIS.fs"
 #load @"SL\Scripts\TspRouting.fs"
@@ -40,25 +42,24 @@ open SL.Base.PGSQLConn
 open SL.Base.ExcelProviderHelper
 open SL.Base.Grouping
 open SL.Base.CsvOutput
-open SL.Geo.Coord
 open SL.Geo.WellKnownText
+open SL.Geo.WGS84
+open SL.Geo.OSGB36
+open SL.Geo.SRTransform
 open SL.PostGIS.ScriptMonad
 open SL.PostGIS.PostGIS
 open SL.Scripts.TspRouting
 open SL.Scripts.SiteOrder
 
+
+/// Note SheetName does not seem to like underscores...
 type SiteListTable = 
-    ExcelFile< @"G:\work\Projects\events2\EDM2 Site-List SK.xlsx",
-                SheetName = "SITE_LIST",
+    ExcelFile< FileName = @"G:\work\Projects\rtu\MK5 MMIM Replacement\SiteList-2010-2011-2012.xlsx",
+                SheetName = "Sites2012",
                 ForceString = true >
 
 type SiteListRow = SiteListTable.Row
 
-//let getSiteListRows () : seq<SiteListRow> = 
-//    let dict : GetRowsDict<SiteListTable, SiteListRow> = 
-//        { GetRows     = fun imports -> imports.Data 
-//          NotNullProc = fun row -> match row.GetValue(0) with null -> false | _ -> true }
-//    excelTableGetRowsSeq dict (new SiteListTable())
 
 /// Use object expressions / interfaces as per F# design guidelines...
 let getSiteListRows () : seq<SiteListRow> = 
@@ -94,10 +95,12 @@ let siteOrderDict:SiteOrderDict<string,SiteListRow> =
             | ss -> ss
     ; ExtractGridRef = 
         fun (row:SiteListRow) -> 
-            Option.map osgb36ToWGS84 <| tryReadOSGB36Point row.``Site Grid Ref``
+            match tryReadOSGB36Point row.``Grid Ref`` with
+            | None -> sreturn None
+            | Some pt -> fmapM Some <| liftAtomically (osgb36ToWGS84 pt)
     ; ExtractNodeLabel = 
         fun (row:SiteListRow) -> 
-            sprintf "%s" row.``Site Common Name`` }
+            sprintf "%s" row.``Site Name`` }
 
 
 let main (password:string) : unit = 

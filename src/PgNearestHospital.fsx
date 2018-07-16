@@ -63,9 +63,10 @@ let SetupDB(password:string) : unit =
 //let readAssetRows () : AssetRow list = (new AssetDataset()).Rows |> Seq.toList
 
 type AssetTable = 
-    ExcelFile< @"G:\work\Projects\rtu\AR-asset-expired-mmims-c2010\SiteList-2010-2011-2012.xlsx",
-                SheetName = "Sites_2010",
-                ForceString = true >
+    ExcelFile< FileName = @"G:\work\Projects\rtu\MK5 MMIM Replacement\SiteList-2010-2011-2012.xlsx",
+                SheetName = "Sites_2012",
+                HasHeaders = true,
+                ForceString = true>
 
 type AssetRow = AssetTable.Row
 
@@ -75,7 +76,8 @@ let getAssetRows () : AssetRow list=
           NotNullProc = fun row -> match row.GetValue(0) with null -> false | _ -> true }
     excelTableGetRowsSeq dict (new AssetTable()) |> Seq.toList
 
-
+let tempZ (row:AssetRow) : unit = 
+    printfn "%s" (row.GetValue(0) :?> string)
 
 let nearestMethodDict : NearestHospitalDict<AssetRow>  = 
     let extractLocation (row:AssetRow) : Script<WGS84Point> = 
@@ -109,7 +111,7 @@ let nearestMethodDict : NearestHospitalDict<AssetRow>  =
 
 let main (password:string) : unit = 
     let assetData = getAssetRows ()
-    let outputFile = @"G:\work\Projects\rtu\AR-asset-expired-mmims-c2010\sites2010-hopitals.csv"
+    let outputFile = @"G:\work\Projects\rtu\MK5 MMIM Replacement\sites2012-hopitals.csv"
     let conn = pgsqlConnParamsTesting "spt_geo" password
     runConsoleScript (printfn "Success: %A") conn 
         <| generateNearestHospitalsCsv nearestMethodDict assetData outputFile

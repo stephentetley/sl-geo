@@ -6,7 +6,6 @@ namespace SL.Geo
 
 open FParsec
 
-open SL.Tolerance
 
 
 // Only concerned with 2d.
@@ -56,16 +55,6 @@ module WellKnownText =
     let inline unwrapWktPoint (pt:WktPoint<'a>) : WktCoord option = 
         match pt with | WktPoint opt -> opt
     
-    let wktCoordsEqual (tx:Tolerance) (p1:WktCoord) (p2:WktCoord) : bool =
-        tEqual tx p1.WktLon p2.WktLon && tEqual tx p1.WktLat p2.WktLat
-
-    // Null Point <> Null Point
-    let wktPointsEqual (tx:Tolerance) (point1:WktPoint<'a>) (point2:WktPoint<'a>) : bool =
-        match unwrapWktPoint point1, unwrapWktPoint point2 with
-        | Some p1, Some p2 -> wktCoordsEqual tx p1 p2
-        | _,_ -> false      
-
-
 
 
     type WktLineString<'a> = WktLineString of WktCoord list 
