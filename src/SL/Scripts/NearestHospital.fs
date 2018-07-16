@@ -11,8 +11,11 @@ open Npgsql
 open SL.Base.SqlUtils
 open SL.Base.PGSQLConn
 open SL.Base.CsvOutput
-open SL.Geo.Coord
+open SL.Geo.Base
 open SL.Geo.WellKnownText
+open SL.Geo.WGS84
+open SL.Geo.OSGB36
+open SL.Geo.SRTransform
 open SL.PostGIS.ScriptMonad
 open SL.PostGIS.PostGIS
 
@@ -35,7 +38,7 @@ let getHospitalImportRows () : seq<HospitalsRow> =
 
 
 let deleteAllData () : Script<int> = 
-    liftPGSQLConn <| deleteAllRowsRestartIdentity "spt_hospitals"
+    liftAtomically <| deleteAllRowsRestartIdentity "spt_hospitals"
 
 
 
@@ -48,17 +51,18 @@ type HospitalRecord =
       GridRef: WGS84Point }
 
 type HospitalInsertDict<'inputrow> = 
-    { tryMakeHospitalRecord : 'inputrow -> HospitalRecord option }
+    { tryMakeHospitalRecord : 'inputrow -> Script<HospitalRecord option> }
 
-let tryMakeRecord (row:HospitalsRow) : HospitalRecord option = 
+let tryMakeRecord (row:HospitalsRow) : Script<HospitalRecord option> = 
     match tryReadOSGB36Point row.``Grid Reference`` with
-    | Some osgb36 -> 
-        Some <| { HospitalName  = row.Name
-                ; Address       = row.Address
-                ; Phone         = row.Telephone
-                ; Postcode      = row.Postcode
-                ; GridRef       = osgb36ToWGS84 osgb36 }
-    | _ -> None
+    | Some osgbPt ->
+        liftAtomically (osgb36ToWGS84 osgbPt) >>>= fun gridRef -> 
+        sreturn (Some { HospitalName  = row.Name
+                      ; Address       = row.Address
+                      ; Phone         = row.Telephone
+                      ; Postcode      = row.Postcode
+                      ; GridRef       = gridRef })
+    | _ -> sreturn None
 
 let MakeDict : HospitalInsertDict<HospitalsRow> = { tryMakeHospitalRecord = tryMakeRecord }
 
@@ -69,16 +73,17 @@ let private makeHospitalINSERT (hospital:HospitalRecord) : string =
             ; stringValue       "telephone"         hospital.Phone
             ; stringValue       "address"           hospital.Address
             ; stringValue       "postcode"          hospital.Postcode
-            ; literalValue      "grid_ref"          <| makeSTGeogFromTextPointLiteral hospital.GridRef
+            ; literalValue      "grid_ref"          <| makeSTGeogFromTextPointLiteral hospital.GridRef.ToWktPoint
             ]
 
 
 let insertHospitals (dict:HospitalInsertDict<'inputrow>) (outfalls:seq<'inputrow>) : Script<int> = 
-    let proc1 (row:'inputrow) : PGSQLConn<int> = 
-        match dict.tryMakeHospitalRecord row with
-        | Some vertex -> execNonQuery <| makeHospitalINSERT vertex
-        | None -> pgsqlConn.Return 0
-    liftPGSQLConn <| SL.Base.PGSQLConn.sumTraverseM proc1 outfalls
+    let proc1 (row:'inputrow) : Script<int> = 
+        dict.tryMakeHospitalRecord row >>>= fun opt ->
+        match opt with
+        | Some vertex -> liftAtomically (execNonQuery <| makeHospitalINSERT vertex)
+        | None -> sreturn 0
+    sumTraverseM proc1 outfalls
 
 
 let SetupHospitalDB (dict:HospitalInsertDict<'inputrow>) (hospitals:seq<'inputrow>) : Script<int> = 
@@ -111,17 +116,14 @@ type BestMatch =
 let nearestHospitalQuery (point:WGS84Point) : Script<HospitalRecord list> = 
     let query = makeNearestNeighbourQUERY 1 point
     let procM (reader:NpgsqlDataReader) : HospitalRecord = 
-        let gridRef = 
-            match Option.bind wktPointToWGS84 <| tryReadWktPoint (reader.GetString(4)) with
-            | Some pt -> printfn"pt: {%A}" pt;  pt
-            | None -> failwith "nearestHospitalQuery - invalid gridRef ..."
+        let gridRef = readPgWGS84Point reader 4
         { HospitalName  = reader.GetString(0)
         ; Phone         = reader.GetString(1)
         ; Address       = reader.GetString(2) 
         ; Postcode      = reader.GetString(3)
         ; GridRef       = gridRef }
     // printfn "***** QUERY:\n%s" query
-    liftPGSQLConn <| execReaderList query procM  
+    liftAtomically <| execReaderList query procM  
 
 
 let nearestHospitalToPoint (point:WGS84Point) : Script<HospitalRecord option> = 
@@ -130,20 +132,17 @@ let nearestHospitalToPoint (point:WGS84Point) : Script<HospitalRecord option> =
 
 
 
-let nearestHospital (extractLoc:'asset -> WGS84Point option) (asset:'asset) : Script<HospitalRecord> = 
-    runOptional "nearestHospital fail" <| 
-        match extractLoc asset with
-        | None -> sreturn None
-        | Some pt -> printfn "pt: %A" pt; nearestHospitalToPoint pt 
+let nearestHospital (extractLoc:'asset -> Script<WGS84Point>) (asset:'asset) : Script<HospitalRecord option> = 
+       extractLoc asset >>>= nearestHospitalToPoint
            
     
-let nearestHospitals (extractLoc:'asset -> WGS84Point option) (assets:seq<'asset>) : Script<seq<'asset * HospitalRecord option>> = 
+let nearestHospitals (extractLoc:'asset -> Script<WGS84Point>) (assets:seq<'asset>) : Script<seq<'asset * HospitalRecord option>> = 
     let proc1 (asset:'asset) = 
         scriptMonad { 
             // optional is the wrong combinator here, it masks hard failures
             // that need to be seen (e.g DB connect failure).
-            let! opt = optional <| nearestHospital extractLoc asset
-            return asset, opt
+            let! hospital = nearestHospital extractLoc asset
+            return asset, hospital
             }
     SL.PostGIS.ScriptMonad.traverseM proc1 assets
     
@@ -153,7 +152,7 @@ let nearestHospitals (extractLoc:'asset -> WGS84Point option) (assets:seq<'asset
 
 type NearestHospitalDict<'asset> = 
     { CsvHeaders: string list
-      ExtractLocation: 'asset -> WGS84Point option
+      ExtractLocation: 'asset -> Script<WGS84Point>
       OutputCsvRow: 'asset -> BestMatch option -> RowWriter }
 
 
@@ -164,7 +163,7 @@ let generateNearestHospitalsCsv (dict:NearestHospitalDict<'asset>) (source:'asse
         let noBest = dict.OutputCsvRow asset1 None
         replaceFailure noBest <| scriptMonad { 
             let! hospital   = liftOption opt
-            let! assetLoc   = liftOption <| dict.ExtractLocation asset1
+            let! assetLoc   = dict.ExtractLocation asset1
             let! distance   = pgDistanceSpheroid assetLoc hospital.GridRef
             let best        = Some <| { NearestHospital = hospital; Distance=distance }
             return (dict.OutputCsvRow asset1 best)

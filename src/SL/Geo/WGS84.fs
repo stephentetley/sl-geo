@@ -16,6 +16,8 @@ open SL.Geo.WellKnownText
 
 
 module WGS84 = 
+    open SL.Base
+    open Npgsql
 
 
 
@@ -58,3 +60,14 @@ module WGS84 =
     /// when using it in a query.
     let wgs84Spheroid:string = "SPHEROID[\"WGS 84\", 6378137, 298.257223563]"
 
+    /// This intentionally throws an exception if if cannot read the string.
+    /// Read errors on NpgsqlDataReader should always be caught
+    let readPgWGS84Point (reader:NpgsqlDataReader) (ordinal:int) : WGS84Point = 
+        let str = reader.GetString(ordinal) 
+        match tryReadWktPoint str with
+        | None -> failwith "readPgWGS84Point error"
+        | Some wkt -> 
+            match WGS84Point.FromWktPoint wkt with
+            | None -> failwith "readPgWGS84Point error"
+            | Some pt -> pt
+        

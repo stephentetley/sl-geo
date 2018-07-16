@@ -7,8 +7,9 @@ open Npgsql
 
 
 open SL.Base
-open SL.Geo.Coord
+open SL.Geo.Base
 open SL.Geo.WellKnownText
+open SL.Geo.WGS84
 open SL.PostGIS.ScriptMonad
 // open SL.Base
 
@@ -16,7 +17,7 @@ open SL.PostGIS.ScriptMonad
 
 
 let private singletonWithReader (query:string) (proc:NpgsqlDataReader -> 'a) : Script<'a> = 
-    liftPGSQLConn <| PGSQLConn.execReaderSingleton query proc
+    liftAtomically <| PGSQLConn.execReaderSingleton query proc
 
 let private singletonAsText1 (query:string) : Script<string> = 
     singletonWithReader query <| fun reader -> reader.GetString(0)
@@ -39,30 +40,31 @@ let private singletonAsText1 (query:string) : Script<string> =
 /// Generates ```ST_GeogFromText('SRID=4326;POINT(1.12345 2.12345')```
 /// The name for this needs to be considered.
 /// Favour calling ST_Point instead.
-let makeSTGeogFromTextPointLiteral (pt:WGS84Point) : string = 
-    sprintf "ST_GeogFromText('SRID=4326;%s')" << showWktPoint <| wgs84WktPoint pt
+let makeSTGeogFromTextPointLiteral (pt:WktPoint<WGS84>) : string = 
+    sprintf "ST_GeogFromText('SRID=4326;%s')" (showWktPoint pt)
 
 // (dict:WktCoordIso<'point,'srid>) (points:seq<'point>)
 
 // ***** Distance Spheroid
 
 // Absolutely must use ST_DistanceSpheroid!
-let makeDistanceQUERY (dict:WktCoordIso<'point,'srid>) (point1:'point) (point2:'point) : string = 
+let makeDistanceQUERY (dict:WktCoordIso<'point,'srid>) 
+                        (point1:WktPoint<'srid>) (point2:WktPoint<'srid>) : string = 
     System.String.Format("""
         SELECT ST_DistanceSpheroid(
             ST_GeomFromText('{0}', {1}),
             ST_GeomFromText('{2}', {1}),
             '{3}');
-        """, showWktPoint <| makeWktPoint dict point1
+        """, showWktPoint point1
            , dict.SRID
-           , showWktPoint <| makeWktPoint dict point2
+           , showWktPoint point2
            , dict.Spheroid )
 
 
 let pgDistanceSpheroid (point1:WGS84Point) (point2:WGS84Point) : Script<float<kilometer>> = 
     let procM (reader:NpgsqlDataReader) : float<kilometer> = 
         0.001<kilometer> * (float <| reader.GetDouble(0))
-    singletonWithReader (makeDistanceQUERY wktIsoWGS84 point1 point2) procM  
+    singletonWithReader (makeDistanceQUERY wktIsoWGS84 point1.ToWktPoint point2.ToWktPoint) procM  
 
 
 // ***** Concave and convex hulls

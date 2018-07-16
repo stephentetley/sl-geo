@@ -25,17 +25,21 @@ open Npgsql
 #load @"SL\Base\PGSQLConn.fs"
 #load @"SL\Base\ExcelProviderHelper.fs"
 #load @"SL\Base\CsvOutput.fs"
+#load @"SL\Geo\Base.fs"
 #load @"SL\Geo\Tolerance.fs"
-#load @"SL\Geo\Coord.fs"
 #load @"SL\Geo\WellKnownText.fs"
+#load @"SL\Geo\WGS84.fs"
+#load @"SL\Geo\OSGB36.fs"
+#load @"SL\Geo\SRTransform.fs"
 #load @"SL\PostGIS\ScriptMonad.fs"
 #load @"SL\PostGIS\PostGIS.fs"
 #load @"SL\Scripts\NearestHospital.fs"
 open SL.Base.PGSQLConn
 open SL.Base.ExcelProviderHelper
-open SL.Base.CsvOutput
-open SL.Geo.Coord
-open SL.Geo.WellKnownText
+open SL.Base
+open SL.Geo.WGS84
+open SL.Geo.OSGB36
+open SL.Geo.SRTransform
 open SL.PostGIS.ScriptMonad
 open SL.Scripts.NearestHospital
 
@@ -71,16 +75,20 @@ let getAssetRows () : AssetRow list=
           NotNullProc = fun row -> match row.GetValue(0) with null -> false | _ -> true }
     excelTableGetRowsSeq dict (new AssetTable()) |> Seq.toList
 
-let nearestMethodDict : NearestHospitalDict<AssetRow>  = 
-    let extractLocation (row:AssetRow) : WGS84Point option = 
-        Option.map osgb36ToWGS84 <| tryReadOSGB36Point row.``Grid Ref``
 
-    let outputRow (row:AssetRow) (optBest : BestMatch option) : SL.Scripts.CsvOutput.RowWriter = 
+
+let nearestMethodDict : NearestHospitalDict<AssetRow>  = 
+    let extractLocation (row:AssetRow) : Script<WGS84Point> = 
+        match tryReadOSGB36Point row.``Grid Ref`` with
+        | None -> throwError "extractLocation"
+        | Some osgb36Pt -> liftAtomically (osgb36ToWGS84 osgb36Pt)
+
+    let outputRow (row:AssetRow) (optBest : BestMatch option) : CsvOutput.RowWriter = 
         match optBest with
         | None -> 
             printfn "no best: %s %s" row.``Site Name`` row.``Grid Ref``
-            [ SL.Scripts.CsvOutput.tellString row.``Sai Number``
-            ; SL.Scripts.CsvOutput.tellString row.``Site Name`` ] 
+            [ CsvOutput.tellString row.``Sai Number``
+            ; CsvOutput.tellString row.``Site Name`` ] 
         | Some bestMatch -> 
             let hospitalLine = 
                 sprintf "%s, %s, %s. Tel: %s" 
@@ -88,11 +96,11 @@ let nearestMethodDict : NearestHospitalDict<AssetRow>  =
                         bestMatch.NearestHospital.Address
                         bestMatch.NearestHospital.Postcode
                         bestMatch.NearestHospital.Phone
-            [ tellQuotedString      row.``Sai Number``
-            ; tellQuotedString      row.``Site Name``
-            ; tellQuotedString      bestMatch.NearestHospital.HospitalName
-            ; tellQuotedString      hospitalLine
-            ; tellFloat             <| float bestMatch.Distance]
+            [ CsvOutput.tellQuotedString      row.``Sai Number``
+            ; CsvOutput.tellQuotedString      row.``Site Name``
+            ; CsvOutput.tellQuotedString      bestMatch.NearestHospital.HospitalName
+            ; CsvOutput.tellQuotedString      hospitalLine
+            ; CsvOutput.tellFloat             <| float bestMatch.Distance]
 
     { CsvHeaders = [ "Uid"; "Name"; "Hospital"; "Hospital Details"; "Distance" ]
     ; ExtractLocation = extractLocation

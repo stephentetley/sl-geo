@@ -70,8 +70,8 @@
     <Compile Include="SL\Geo\OSGB36.fs" />
     <Compile Include="SL\Geo\WebMercator.fs" />
     <Compile Include="SL\Geo\SRTransform.fs" />
-    <Compile Include="SL\PostGIS\ScriptMonad.fs" />
     <Compile Include="SL\PostGIS\PostGIS.fs" />
+    <Compile Include="SL\PostGIS\ScriptMonad.fs" />
     <Compile Include="SL\Scripts\TspRouting.fs" />
     <Compile Include="SL\Scripts\NearestHospital.fs" />
     <Compile Include="SL\Scripts\PostGISHulls.fs" />

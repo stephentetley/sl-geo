@@ -33,13 +33,14 @@ module SRTransform =
             | None -> throwError (sprintf "pointToPoint - decoding failed: '%s'" txt)
 
 
-
-    // SELECT ST_AsText(ST_Transform(ST_GeomFromText('POINT(-1.7867456 53.856689)',4326),4326));
-
     let osgb36ToWGS84 (osgb36:OSGB36Point) : PGSQLConn<WGS84Point> = 
         pointToPoint osgb36.ToWktPoint 27700 4326 >>= fun wkt ->  
             match WGS84Point.FromWktPoint wkt with
             | Some pt -> pgreturn pt
             | None -> throwError "osgb36ToWGS84 - decoding failed"
 
-
+    let wgs84ToOSGB36 (pt:WGS84Point) : PGSQLConn<OSGB36Point> = 
+        pointToPoint pt.ToWktPoint 4326 27700  >>= fun wkt ->  
+            match OSGB36Point.FromWktPoint wkt with
+            | Some pt -> pgreturn pt
+            | None -> throwError "wgs84ToOSGB36 - decoding failed"

@@ -33,10 +33,10 @@ let inline sreturn (x:'a) : Script<'a> =
 
 
 
-let inline private bindM (ma:Script<'a>) (f : 'a -> Script<'b>) : Script<'b> =
+let inline private bindM (ma:Script<'a>) (fn : 'a -> Script<'b>) : Script<'b> =
     ScriptMonad <| fun connp sw -> 
         match apply1 ma connp sw with
-        | Ok a -> apply1 (f a) connp sw 
+        | Ok a -> apply1 (fn a) connp sw 
         | Error stk -> Error stk
         | Fatal msg -> Fatal msg
 
@@ -68,6 +68,8 @@ type ScriptBuilder() =
 
 let (scriptMonad:ScriptBuilder) = new ScriptBuilder()
 
+let (>>>=) (ma:Script<'a>) (fn : 'a -> Script<'b>) : Script<'b> =
+    bindM ma fn
 
 // Common monadic operations
 let fmapM (fn:'a -> 'b) (ma:Script<'a>) : Script<'b> = 
@@ -393,7 +395,7 @@ let private liftResult (result:PGSQLConn.Result<'a>) : Result<'a> =
     | PGSQLConn.Success a -> Ok a
     | PGSQLConn.Failure stk -> Fatal (ErrorTrace.getErrorTrace stk)
 
-let liftPGSQLConn (pgsql:PGSQLConn.PGSQLConn<'a>) : Script<'a> = 
+let liftAtomically (pgsql:PGSQLConn.PGSQLConn<'a>) : Script<'a> = 
     ScriptMonad <| fun connp sw -> 
         liftResult <| PGSQLConn.atomically connp pgsql
 
