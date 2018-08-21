@@ -87,6 +87,7 @@
     <None Include="TestGeo.fsx" />
     <None Include="TestPostGIS.fsx" />
     <None Include="TestCoordTransform.fsx" />
+    <None Include="Outstations.fsx" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

@@ -13,6 +13,7 @@ open FParsec
 // Note BNF starts on page 54 of the spec.
 // This should be the authority for naming etc.
 
+[<AutoOpen>]
 module WellKnownText = 
     
     // Note - Wkt should not favour the WGS84 reference system.

@@ -16,6 +16,7 @@ open SL.Geo.OSGB36
 
 // Spatial Reference transformations - performed by PostGIS
 
+[<AutoOpen>]
 module SRTransform = 
     open System
 

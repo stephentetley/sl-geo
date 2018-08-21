@@ -7,7 +7,7 @@ open System
 
 open Microsoft.FSharp.Core
 
-
+[<AutoOpen>]
 module Base = 
 
 

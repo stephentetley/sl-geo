@@ -19,6 +19,7 @@ open SL.Geo.WellKnownText
 // Ordnance Survey
 // Ref D00659
 
+[<AutoOpen>]
 module OSGB36 = 
 
 

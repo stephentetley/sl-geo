@@ -8,9 +8,7 @@ open Npgsql
 open SL.Base.SqlUtils
 open SL.Base.PGSQLConn
 open SL.Base.CsvOutput
-open SL.Geo.Base
-open SL.Geo.WellKnownText
-open SL.Geo.WGS84
+open SL.Geo
 open SL.PostGIS.ScriptMonad
 open SL.PostGIS.PostGIS
 

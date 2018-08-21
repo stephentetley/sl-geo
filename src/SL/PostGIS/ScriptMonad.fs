@@ -79,6 +79,10 @@ let fmapM (fn:'a -> 'b) (ma:Script<'a>) : Script<'b> =
        | Error stk -> Error stk
        | Fatal msg -> Fatal msg
 
+let (|>>) (ma:Script<'a>) (fn:'a -> 'b)  : Script<'b> = fmapM fn ma
+let (<<|) (fn:'a -> 'b)  (ma:Script<'a>)  : Script<'b> = fmapM fn ma
+
+
 let liftM (fn:'a -> 'x) (ma:Script<'a>) : Script<'x> = 
     fmapM fn ma
 

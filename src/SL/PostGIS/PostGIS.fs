@@ -7,9 +7,9 @@ open Npgsql
 
 
 open SL.Base
-open SL.Geo.Base
+open SL.Geo
 open SL.Geo.WellKnownText
-open SL.Geo.WGS84
+// open SL.Geo.WGS84
 open SL.PostGIS.ScriptMonad
 // open SL.Base
 

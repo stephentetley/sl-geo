@@ -16,6 +16,7 @@ open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 // Ordnance Survey
 // Ref D00659
 
+[<AutoOpen>]
 module Coord = 
 
     // kilometer and degree can probably go into their own module...
