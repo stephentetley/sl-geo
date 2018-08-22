@@ -14,6 +14,7 @@ open SL.Geo.WellKnownText
 
 // This is the coordinate system of OpenStreetMap data
 
+[<AutoOpen>]
 module WebMercator = 
     
 

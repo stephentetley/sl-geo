@@ -7,8 +7,7 @@ open Npgsql
 
 open SL.Base.Grouping
 open SL.Base.CsvOutput
-open SL.Geo.Coord
-open SL.Geo.WellKnownText
+open SL.Geo
 open SL.PostGIS.ScriptMonad
 open SL.PostGIS.PostGIS
 

@@ -68,7 +68,7 @@ type ScriptBuilder() =
 
 let (scriptMonad:ScriptBuilder) = new ScriptBuilder()
 
-let (>>>=) (ma:Script<'a>) (fn : 'a -> Script<'b>) : Script<'b> =
+let (>>=) (ma:Script<'a>) (fn : 'a -> Script<'b>) : Script<'b> =
     bindM ma fn
 
 // Common monadic operations

@@ -21,13 +21,13 @@ let excelTableGetRows (dict:GetRowsDict<'table,'row>) (table:'table) : 'row list
 
 /// F# design guidelines say favour object-interfaces rather than records of functions...
 type IExcelProviderHelper<'table,'row> = 
-    abstract member GetTableRows : 'table -> seq<'row>
+    abstract member ReadTableRows : 'table -> seq<'row>
     abstract member IsBlankRow: 'row -> bool
 
-let excelGetRows (helper:IExcelProviderHelper<'table,'row>) (table:'table) : seq<'row> = 
-    let allrows = helper.GetTableRows table
+let excelReadRows (helper:IExcelProviderHelper<'table,'row>) (table:'table) : seq<'row> = 
+    let allrows = helper.ReadTableRows table
     allrows |> Seq.filter (not << helper.IsBlankRow)
 
 
-let excelGetRowsAsList (helper:IExcelProviderHelper<'table,'row>) (table:'table) : 'row list = 
-    excelGetRows helper table |> Seq.toList
+let excelReadRowsAsList (helper:IExcelProviderHelper<'table,'row>) (table:'table) : 'row list = 
+    excelReadRows helper table |> Seq.toList

@@ -92,7 +92,7 @@ type PGSQLConnBuilder() =
 let (pgsqlConn:PGSQLConnBuilder) = new PGSQLConnBuilder()
 
 
-let (>>=) (ma:PGSQLConn<'a>) (fn : 'a -> PGSQLConn<'b>) : PGSQLConn<'b> = 
+let (>>>=) (ma:PGSQLConn<'a>) (fn : 'a -> PGSQLConn<'b>) : PGSQLConn<'b> = 
     bindM ma fn
 
 // Common operations

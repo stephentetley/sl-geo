@@ -20,7 +20,9 @@ open SL.Geo.OSGB36
 module SRTransform = 
     open System
 
-    // PGSQLConn
+    // TODO - PGSQLConn is the wrong monad, it should be Script
+    // Even though we only need the power of PGSQLConn, letting it
+    // escape into user code makes a very confusing API.
 
     let private pointToPoint (source:WktPoint<'srid1>) (srid1:int) (srid2:int) : PGSQLConn<WktPoint<'srid2>> = 
         let query =     
@@ -28,20 +30,20 @@ module SRTransform =
 
         let proc : PGSQLConn<string> = execReaderSingleton query (fun reader -> reader.GetString(0) )
         printfn "%s" query
-        proc >>= fun txt ->
+        proc >>>= fun txt ->
             match tryReadWktPoint txt with
             | Some pt -> pgreturn pt
             | None -> throwError (sprintf "pointToPoint - decoding failed: '%s'" txt)
 
 
     let osgb36ToWGS84 (osgb36:OSGB36Point) : PGSQLConn<WGS84Point> = 
-        pointToPoint osgb36.ToWktPoint 27700 4326 >>= fun wkt ->  
+        pointToPoint osgb36.ToWktPoint 27700 4326 >>>= fun wkt ->  
             match WGS84Point.FromWktPoint wkt with
             | Some pt -> pgreturn pt
             | None -> throwError "osgb36ToWGS84 - decoding failed"
 
     let wgs84ToOSGB36 (pt:WGS84Point) : PGSQLConn<OSGB36Point> = 
-        pointToPoint pt.ToWktPoint 4326 27700  >>= fun wkt ->  
+        pointToPoint pt.ToWktPoint 4326 27700  >>>= fun wkt ->  
             match OSGB36Point.FromWktPoint wkt with
             | Some pt -> pgreturn pt
             | None -> throwError "wgs84ToOSGB36 - decoding failed"

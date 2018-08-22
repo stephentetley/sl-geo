@@ -1,38 +1,42 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-module SL.Tolerance
+namespace SL.Geo.Tolerance
 
 open System
 
-/// TODO
-/// We probably don't need this module if the major of "Geoprocessing" is delegated to 
-/// PostGIS.
+[<RequireQualifiedAccess>]
+module Tolerance = 
 
-type Tolerance = 
-    {TOL:decimal}
-    member v.tolerance = v.TOL
 
-/// Tolerant equality
-let tEqual (tx:Tolerance) (a:decimal) (b:decimal) : bool = 
-    Math.Abs (a-b) < tx.tolerance
+    /// TODO
+    /// We probably don't need this module if the major of "Geoprocessing" is delegated to 
+    /// PostGIS.
 
-/// Tolerant less than
-let tLessThan (tx:Tolerance) (a:decimal) (b:decimal) : bool = 
-    a < b && (b-a) > tx.tolerance
+    type Tolerance = 
+        {TOL:decimal}
+        member v.tolerance = v.TOL
 
-/// Tolerant greater than
-let tGreaterThan (tx:Tolerance) (a:decimal) (b:decimal) : bool = 
-    a > b && (a-b) > tx.tolerance
+    /// Tolerant equality
+    let tEqual (tx:Tolerance) (a:decimal) (b:decimal) : bool = 
+        Math.Abs (a-b) < tx.tolerance
 
-/// Tolerant less than or Equal
-let tLessThanEqual (tx:Tolerance) (a:decimal) (b:decimal) : bool = 
-    tEqual tx a b || tLessThan tx a b
+    /// Tolerant less than
+    let tLessThan (tx:Tolerance) (a:decimal) (b:decimal) : bool = 
+        a < b && (b-a) > tx.tolerance
 
-/// Tolerant greater than
-let tGreaterThanEqual (tx:Tolerance) (a:decimal) (b:decimal) : bool = 
-    tEqual tx a b || tGreaterThan tx a b
+    /// Tolerant greater than
+    let tGreaterThan (tx:Tolerance) (a:decimal) (b:decimal) : bool = 
+        a > b && (a-b) > tx.tolerance
 
-/// Tolerant compare
-let tCompare (tx:Tolerance) (a:decimal) (b:decimal) : int = 
-    if tEqual tx a b then 0 else compare a b 
+    /// Tolerant less than or Equal
+    let tLessThanEqual (tx:Tolerance) (a:decimal) (b:decimal) : bool = 
+        tEqual tx a b || tLessThan tx a b
+
+    /// Tolerant greater than
+    let tGreaterThanEqual (tx:Tolerance) (a:decimal) (b:decimal) : bool = 
+        tEqual tx a b || tGreaterThan tx a b
+
+    /// Tolerant compare
+    let tCompare (tx:Tolerance) (a:decimal) (b:decimal) : int = 
+        if tEqual tx a b then 0 else compare a b 

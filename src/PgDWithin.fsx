@@ -30,6 +30,7 @@ open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 #load @"SL\Geo\Tolerance.fs"
 #load @"SL\Geo\Coord.fs"
 #load @"SL\Geo\WellKnownText.fs"
+#load @"SL\Geo\WGS84.fs"
 #load @"SL\PostGIS\ScriptMonad.fs"
 #load @"SL\PostGIS\PostGIS.fs"
 open SL.Base.SqlUtils
@@ -51,14 +52,14 @@ type SiteListTable =
 type SiteListRow = SiteListTable.Row
 
 let getSiteListRows () : SiteListRow list = 
-    let dict : GetRowsDict<SiteListTable, SiteListRow> = 
-        { GetRows     = fun imports -> imports.Data 
-          NotNullProc = fun row -> match row.GetValue(0) with null -> false | _ -> true }
-    excelTableGetRows dict (new SiteListTable())
-
+    let helper = 
+        { new IExcelProviderHelper<SiteListTable,SiteListRow>
+          with member this.ReadTableRows table = table.Data 
+               member this.IsBlankRow row = match row.GetValue(0) with null -> true | _ -> false }
+    excelReadRowsAsList helper (new SiteListTable())
 
 let deleteAllData () : Script<int> = 
-    liftPGSQLConn <| deleteAllRowsRestartIdentity "spt_dwithin"
+    liftAtomically <| deleteAllRowsRestartIdentity "spt_dwithin"
 
 
 let private makeDWithinINSERT (row:SiteListRow) : string option = 

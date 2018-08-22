@@ -52,7 +52,7 @@ type HospitalInsertDict<'inputrow> =
 let tryMakeRecord (row:HospitalsRow) : Script<HospitalRecord option> = 
     match tryReadOSGB36Point row.``Grid Reference`` with
     | Some osgbPt ->
-        liftAtomically (osgb36ToWGS84 osgbPt) >>>= fun gridRef -> 
+        liftAtomically (osgb36ToWGS84 osgbPt) >>= fun gridRef -> 
         sreturn (Some { HospitalName  = row.Name
                       ; Address       = row.Address
                       ; Phone         = row.Telephone
@@ -75,7 +75,7 @@ let private makeHospitalINSERT (hospital:HospitalRecord) : string =
 
 let insertHospitals (dict:HospitalInsertDict<'inputrow>) (outfalls:seq<'inputrow>) : Script<int> = 
     let proc1 (row:'inputrow) : Script<int> = 
-        dict.tryMakeHospitalRecord row >>>= fun opt ->
+        dict.tryMakeHospitalRecord row >>= fun opt ->
         match opt with
         | Some vertex -> liftAtomically (execNonQuery <| makeHospitalINSERT vertex)
         | None -> sreturn 0
@@ -129,7 +129,7 @@ let nearestHospitalToPoint (point:WGS84Point) : Script<HospitalRecord option> =
 
 
 let nearestHospital (extractLoc:'asset -> Script<WGS84Point>) (asset:'asset) : Script<HospitalRecord option> = 
-       extractLoc asset >>>= nearestHospitalToPoint
+       extractLoc asset >>= nearestHospitalToPoint
            
     
 let nearestHospitals (extractLoc:'asset -> Script<WGS84Point>) (assets:seq<'asset>) : Script<seq<'asset * HospitalRecord option>> = 

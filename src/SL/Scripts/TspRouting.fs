@@ -58,7 +58,7 @@ let insertVertices (dict:TspNodeInsertDict<'row>) (vertices:'row list) : Script<
         execNonQuery <| makeVertexINSERT point label
     
     let good1 (row:'row) : Script<(WGS84Point * string) option> = 
-         dict.TryMakeNodeLocation row >>>= fun opt -> 
+         dict.TryMakeNodeLocation row >>= fun opt -> 
             match opt with
             | None -> sreturn None
             | Some pt -> sreturn <| Some (pt, dict.MakeNodeLabel row)

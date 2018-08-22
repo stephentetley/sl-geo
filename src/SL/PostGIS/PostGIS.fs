@@ -8,7 +8,6 @@ open Npgsql
 
 open SL.Base
 open SL.Geo
-open SL.Geo.WellKnownText
 // open SL.Geo.WGS84
 open SL.PostGIS.ScriptMonad
 // open SL.Base
@@ -60,11 +59,13 @@ let makeDistanceQUERY (dict:WktCoordIso<'point,'srid>)
            , showWktPoint point2
            , dict.Spheroid )
 
-
+/// Note this throuws an inscrutable error 
+/// if @"SL\Geo\WGS84.fs" is not loaded in the fsx file.
 let pgDistanceSpheroid (point1:WGS84Point) (point2:WGS84Point) : Script<float<kilometer>> = 
     let procM (reader:NpgsqlDataReader) : float<kilometer> = 
         0.001<kilometer> * (float <| reader.GetDouble(0))
-    singletonWithReader (makeDistanceQUERY wktIsoWGS84 point1.ToWktPoint point2.ToWktPoint) procM  
+    let query = makeDistanceQUERY wktIsoWGS84 point1.ToWktPoint point2.ToWktPoint
+    singletonWithReader query procM  
 
 
 // ***** Concave and convex hulls

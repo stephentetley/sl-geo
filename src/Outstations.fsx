@@ -13,6 +13,10 @@ open Npgsql
 open FSharp.Data
 
 
+#I @"..\packages\ExcelProvider.0.8.2\lib"
+#r "ExcelProvider.dll"
+open FSharp.ExcelProvider
+
 #I @"..\packages\FParsec.1.0.4-RC3\lib\portable-net45+win8+wp8+wpa81"
 #r "FParsec"
 #r "FParsecCS"
@@ -21,6 +25,7 @@ open FSharp.Data
 #load @"SL\Base\SqlUtils.fs"
 #load @"SL\Base\PGSQLConn.fs"
 #load @"SL\Base\CsvOutput.fs"
+#load @"SL\Base\ExcelProviderHelper.fs"
 #load @"SL\Geo\Tolerance.fs"
 #load @"SL\Geo\Coord.fs"
 #load @"SL\Geo\WellKnownText.fs"
@@ -30,12 +35,14 @@ open FSharp.Data
 #load @"SL\PostGIS\ScriptMonad.fs"
 #load @"SL\PostGIS\PostGIS.fs"
 open SL.Base.PGSQLConn
+open SL.Base.ExcelProviderHelper
+open SL.Base.CsvOutput
 open SL.Geo
 open SL.PostGIS.ScriptMonad
 open SL.PostGIS.PostGIS
 
 type OutstationData = 
-    CsvProvider< @"G:\work\Projects\new_lmps\RTS-export-for-Parent_OU.trim.csv",
+    CsvProvider< @"G:\work\Projects\flood_manholes\RTS-export-for-Parent_OU.trim.csv",
                  HasHeaders = true>
 
 type OutstationRow = OutstationData.Row
@@ -45,6 +52,7 @@ let readOutstations () : seq<OutstationRow> = (new OutstationData ()).Rows |> Se
 type OutstationRecord = 
     { OsName: string
       OdName: string
+      SetName: string
       ParentOU: string
       ParentOUComment: string
       GridRefText: string }
@@ -58,16 +66,17 @@ let geomFromText (source:string) : Script<string option> =
     match tryReadOSGB36Point source with
     | None -> sreturn None
     | Some osgb36 -> 
-        liftAtomically (osgb36ToWGS84 osgb36) >>>= fun (wgs:WGS84Point) -> 
+        liftAtomically (osgb36ToWGS84 osgb36) >>= fun (wgs:WGS84Point) -> 
         sreturn (Some <| sprintf "ST_GeomFromText('POINT(%f %f)', 4326)" wgs.Longitude wgs.Latitude)
 
 
 
 let makeInsert (row:OutstationRow) : Script<string option> = 
     let sk (wkt:string) : string = 
-        sprintf "INSERT INTO spt_outstations (os_name, od_name, parent_ou, parent_ou_comment, osgb36_text, os_location) VALUES ('%s', '%s', '%s', '%s', '%s', %s) ;"
+        sprintf "INSERT INTO spt_outstations (os_name, od_name, set_name, parent_ou, parent_ou_comment, osgb36_text, os_location) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', %s) ;"
                 row.``OS name``
                 row.``OD name``
+                row.``Set name``
                 row.``Parent OU``
                 row.``Parent OU Comment``
                 row.``Grid ref``
@@ -94,7 +103,7 @@ let genDbInsertScript (password:string) : unit =
 let makeNearestNeighbourQUERY (limit:int) (point:WGS84Point) : string = 
     System.String.Format("""
         SELECT 
-            os_name, od_name, parent_ou, parent_ou_comment, osgb36_text, ST_AsText(os_location)
+            os_name, od_name, set_name, parent_ou, parent_ou_comment, osgb36_text, ST_AsText(os_location)
         FROM 
             spt_outstations 
         ORDER BY os_location <-> ST_Point({0}, {1}) LIMIT {2} ;
@@ -106,8 +115,9 @@ let nearestExistingOutstationList (point:WGS84Point) : Script<OutstationRecord l
     let procM (reader:NpgsqlDataReader) : OutstationRecord = 
         { OsName            = reader.GetString(0)
         ; OdName            = reader.GetString(1)
-        ; ParentOU          = reader.GetString(2) 
-        ; ParentOUComment   = reader.GetString(3)
+        ; SetName           = reader.GetString(2)
+        ; ParentOU          = reader.GetString(3) 
+        ; ParentOUComment   = reader.GetString(4)
         ; GridRefText       = reader.GetString(5) }
     // printfn "***** QUERY:\n%s" query
     liftAtomically <| execReaderList query procM  
@@ -121,10 +131,64 @@ let getNearestExistingOutstation (source:string) : Script<OutstationRecord optio
     match tryReadOSGB36Point source with
     | None -> sreturn None
     | Some osgb36 -> 
-        liftAtomically (osgb36ToWGS84 osgb36) >>>= fun (wgsPt:WGS84Point) -> 
+        liftAtomically (osgb36ToWGS84 osgb36) >>= fun (wgsPt:WGS84Point) -> 
         nearestExistingOutstation wgsPt
 
 let temp02 (password:string) = 
     let conn = pgsqlConnParamsTesting "spt_geo" password
     runConsoleScript (printfn "Success: %A") conn 
         <| getNearestExistingOutstation "SE0252744901"
+
+type SitesTable = 
+    ExcelFile< FileName = @"G:\work\Projects\flood_manholes\S4811-Site_List_Initial_141.xlsx",
+                SheetName = "Sites",
+                HasHeaders = true,
+                ForceString = true>
+
+type SiteRow = SitesTable.Row
+
+let readSiteRows () : SiteRow list = 
+    let helper = 
+        { new IExcelProviderHelper<SitesTable,SiteRow>
+          with member this.ReadTableRows table = table.Data 
+               member this.IsBlankRow row = match row.GetValue(0) with null -> true | _ -> false }
+    excelReadRowsAsList helper (new SitesTable())
+
+let tellOutputRow (row:SiteRow, neighbour:OutstationRecord) : CellWriter list = 
+    [ tellString row.``STC25 Ref``
+    ; tellString row.``Region (Stantec)``
+    ; tellString row.``Grid Ref (NGR)``
+    ; tellString neighbour.OsName
+    ; tellString neighbour.SetName
+    ; tellString neighbour.ParentOU
+    ; tellString neighbour.ParentOUComment 
+    ]
+
+let csvHeaders : string list = 
+    [ "STC25 Ref"
+    ; "Region (Stantec)"
+    ; "Grid Ref (NGR)"
+    ; "Neighbour Name"
+    ; "Neighbour Set"
+    ; "Neighbour Parent_OU"
+    ; "Neighbour Parent_OU_Comment"
+    ]
+
+let OutputSites(password:string) : unit = 
+    let conn = pgsqlConnParamsTesting "spt_geo" password
+    let outFile = @"G:\work\Projects\flood_manholes\manhole-neighbours.csv"
+
+    runConsoleScript (printfn "Success: %A") conn 
+        <| scriptMonad { 
+                let rows1:SiteRow list = readSiteRows ()
+                let! rows2 = 
+                    forM rows1 (fun (manhole:SiteRow) -> 
+                                    getNearestExistingOutstation manhole.``STC25 Ref`` >>= fun ans ->
+                                    match ans with 
+                                    | Some outstation -> sreturn <| Some (manhole, outstation)
+                                    | None -> sreturn None )
+                let rows3 = List.choose id rows2
+                let csvProc:CsvOutput<unit> = writeRecordsWithHeaders csvHeaders rows3 tellOutputRow
+                do (outputToNew {Separator=","} csvProc outFile)
+                return ()
+                }

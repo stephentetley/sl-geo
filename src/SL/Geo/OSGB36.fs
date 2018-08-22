@@ -9,7 +9,7 @@ open System.Text.RegularExpressions
 open Microsoft.FSharp.Core
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 
-open SL.Geo.WellKnownText
+open SL.Geo
 
 
 // TODO Transformations should use the proj4 binding (fs-proj4) when it is ready...

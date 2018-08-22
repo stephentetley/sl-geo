@@ -63,21 +63,20 @@ type SiteListRow = SiteListTable.Row
 
 /// Use object expressions / interfaces as per F# design guidelines...
 let getSiteListRows () : seq<SiteListRow> = 
-    let dict () = 
+    let helper = 
         { new IExcelProviderHelper<SiteListTable,SiteListRow>
-          with member this.GetTableRows table = table.Data 
-               member this.IsBlankRow row = match row.GetValue(0) with null -> true | _ -> false }
-         
-    excelGetRows (dict ()) (new SiteListTable())
+          with member this.ReadTableRows table = table.Data 
+               member this.IsBlankRow row = match row.GetValue(0) with null -> true | _ -> false }         
+    excelReadRows helper (new SiteListTable())
 
 
 
 let filterOutMoreInfo (rows:seq<SiteListRow>) : seq<SiteListRow> = 
     Seq.filter (fun (row:SiteListRow) ->
-                    row.``Work Center`` <> "MORE DETAILS REQUIRED") rows
+                    row.``Work Centre`` <> "MORE DETAILS REQUIRED") rows
 
 let test01 () =
-    let makeGrouping = fun (row:SiteListRow) -> row.``Work Center``
+    let makeGrouping = fun (row:SiteListRow) -> row.``Work Centre``
     let groups = groupingBy makeGrouping <| getSiteListRows ()
     Seq.iter (printfn "GROUP:\n%A") <| groups
 
@@ -90,7 +89,7 @@ let test02 () =
 let siteOrderDict:SiteOrderDict<string,SiteListRow> = 
     { GroupingOp = 
         fun (row:SiteListRow) -> 
-            match row.``Work Center`` with
+            match row.``Work Centre`` with
             | null -> "UNKNOWN WORK CENTER"
             | ss -> ss
     ; ExtractGridRef = 

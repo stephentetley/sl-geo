@@ -32,12 +32,14 @@ open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 #load @"SL\Geo\Tolerance.fs"
 #load @"SL\Geo\Coord.fs"
 #load @"SL\Geo\WellKnownText.fs"
+#load @"SL\Geo\WGS84.fs"
+#load @"SL\Geo\OSGB36.fs"
+#load @"SL\Geo\SRTransform.fs"
 #load @"SL\PostGIS\ScriptMonad.fs"
 #load @"SL\PostGIS\PostGIS.fs"
 #load @"SL\Scripts\PathFinder.fs"
 open SL.Base.PGSQLConn
-open SL.Geo.Coord
-open SL.Geo.WellKnownText
+open SL.Geo
 open SL.PostGIS.ScriptMonad
 open SL.Scripts.PathFinder
 
@@ -56,7 +58,7 @@ let getNodeImportRows () : seq<NodeImportRow> =
 
 let tryMakeNode (row:NodeImportRow) : UserLandNode option = 
     let convert1 : string -> WGS84Point option = 
-        Option.bind wktPointToWGS84 << tryReadWktPoint
+        Option.bind WGS84Point.FromWktPoint << tryReadWktPoint
     match convert1 row.WKT with
     | Some gridRef -> 
         Some <| { TypeTag       = row.``Feature Type``
@@ -78,7 +80,7 @@ let getEdgeImportRows () : seq<EdgeImportRow> =
 // Input data is WGS84
 let tryMakeEdge (row:EdgeImportRow) : UserLandEdge option = 
     let convert1 : string -> WGS84Point option = 
-        Option.bind wktPointToWGS84 << tryReadWktPoint
+        Option.bind WGS84Point.FromWktPoint << tryReadWktPoint
     match convert1 row.``Start Point (WKT)``, convert1 row.``End Point (WKT)`` with
     | Some startPt, Some endPt -> 
         Some <| { TypeTag       = row.Type
@@ -103,7 +105,7 @@ let SetupDB(password:string) : unit =
 let test01 () : unit =
     match tryReadWktPoint "POINT  ( 389330.850 501189.852) " with
     | Some (pt:WktPoint<OSGB36>) -> 
-        printfn "%s => %A" (showWktPoint pt) (Option.map showOSGB36Point <| wktPointToOSGB36 pt) 
+        printfn "%s => %A" (showWktPoint pt) (Option.map showOSGB36Point <| OSGB36Point.FromWktPoint pt) 
     | None -> failwith "Grr!"
 
 let roseTree1 : PathTree<string> = 
@@ -117,11 +119,11 @@ let test02 () =
 
 let test03 (password:string) : unit = 
     let conn = pgsqlConnParamsTesting "spt_geo" password
-    let startPt = 
-        osgb36ToWGS84 { Easting = 389330.850<meter> ; Northing = 501189.852<meter> }
 
     runConsoleScript (printfn "Success: %A") conn 
         <| scriptMonad { 
+            let! startPt = 
+                liftAtomically <| osgb36ToWGS84 { Easting = 389330.850<meter> ; Northing = 501189.852<meter> }
             let! vs = findOutwardEdges startPt
             do (List.iter (printfn "Edge: %A") vs)
             return ()

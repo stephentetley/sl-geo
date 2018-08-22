@@ -26,6 +26,7 @@ open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 #load @"SL\Geo\Tolerance.fs"
 #load @"SL\Geo\Coord.fs"
 #load @"SL\Geo\WellKnownText.fs"
+#load @"SL\Geo\WGS84.fs"
 #load @"SL\PostGIS\ScriptMonad.fs"
 #load @"SL\PostGIS\PostGIS.fs"
 open SL.Base.SqlUtils
@@ -61,7 +62,7 @@ let getDataForNeighbours () : seq<NeighboursRow> = (new NeighboursData ()).Rows 
 // ********** SCRIPT **********
 
 let deleteAllData () : Script<int> = 
-    liftPGSQLConn <| deleteAllRows "spt_outfalls"
+    liftAtomically <| deleteAllRows "spt_outfalls"
 
 let makeOutfallINSERT (row:OutfallRow) : string = 
     let east        = 1.0<meter> * (float <| row.METREEASTING)
@@ -85,7 +86,7 @@ let makeOutfallINSERT (row:OutfallRow) : string =
 let insertOutfalls () : Script<int> = 
     let rows = getOutfalls ()
     let proc1 (row:OutfallRow) : PGSQLConn<int> = execNonQuery <| makeOutfallINSERT row
-    liftPGSQLConn <| SL.Base.PGSQLConn.sumForM rows proc1
+    liftAtomically <| SL.Base.PGSQLConn.sumForM rows proc1
 
 
 
@@ -143,7 +144,7 @@ let genOutputRow (limit:int) (row:NeighboursRow) : Script<OutputRow> =
     let neighbours () : Script<NeighbourRec list>= 
         match Option.map osgb36ToWGS84 <| tryReadOSGB36Point row.``Cats NGRs`` with
         | Some wgs84 -> 
-            liftPGSQLConn <| pgNearestNeighbourQuery 5 wgs84
+            liftAtomically <| pgNearestNeighbourQuery 5 wgs84
         | None -> scriptMonad.Return []
 
     let ngrAndStc25OfOne (xs:NeighbourRec list) : string*string = 

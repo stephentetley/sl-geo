@@ -10,7 +10,7 @@ open Microsoft.FSharp.Core
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 
 open SL.Geo
-open SL.Geo.WellKnownText
+
 
 // TODO Transformations should use the proj4 binding (fs-proj4) when it is ready...
 
