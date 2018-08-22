@@ -154,14 +154,18 @@ let readSiteRows () : SiteRow list =
                member this.IsBlankRow row = match row.GetValue(0) with null -> true | _ -> false }
     excelReadRowsAsList helper (new SitesTable())
 
-let tellOutputRow (row:SiteRow, neighbour:OutstationRecord) : CellWriter list = 
+let tellOutputRow (row:SiteRow, neighbour:OutstationRecord option) : CellWriter list = 
+    let extractN (fn:OutstationRecord -> string) (v:OutstationRecord option) : string =
+        match v with
+        | None -> ""
+        | Some o -> fn o
     [ tellString row.``STC25 Ref``
     ; tellString row.``Region (Stantec)``
     ; tellString row.``Grid Ref (NGR)``
-    ; tellString neighbour.OsName
-    ; tellString neighbour.SetName
-    ; tellString neighbour.ParentOU
-    ; tellString neighbour.ParentOUComment 
+    ; tellString <| extractN (fun v -> v.OsName ) neighbour
+    ; tellString <| extractN (fun v -> v.SetName) neighbour
+    ; tellString <| extractN (fun v -> v.ParentOU) neighbour
+    ; tellString <| extractN (fun v -> v.ParentOUComment) neighbour
     ]
 
 let csvHeaders : string list = 
@@ -183,12 +187,9 @@ let OutputSites(password:string) : unit =
                 let rows1:SiteRow list = readSiteRows ()
                 let! rows2 = 
                     forM rows1 (fun (manhole:SiteRow) -> 
-                                    getNearestExistingOutstation manhole.``STC25 Ref`` >>= fun ans ->
-                                    match ans with 
-                                    | Some outstation -> sreturn <| Some (manhole, outstation)
-                                    | None -> sreturn None )
-                let rows3 = List.choose id rows2
-                let csvProc:CsvOutput<unit> = writeRecordsWithHeaders csvHeaders rows3 tellOutputRow
+                                    getNearestExistingOutstation manhole.``Grid Ref (NGR)`` >>= fun ans ->
+                                    sreturn (manhole, ans)  )
+                let csvProc:CsvOutput<unit> = writeRecordsWithHeaders csvHeaders rows2 tellOutputRow
                 do (outputToNew {Separator=","} csvProc outFile)
                 return ()
                 }
