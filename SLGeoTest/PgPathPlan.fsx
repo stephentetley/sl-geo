@@ -23,21 +23,21 @@ open FSharpx.Collections
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 
 
-#load @"SL\Base\ErrorTrace.fs"
-#load @"SL\Base\SqlUtils.fs"
-#load @"SL\Base\PGSQLConn.fs"
-#load @"SL\Base\CsvOutput.fs"
-#load @"SL\Base\NameGen.fs"
-#load @"SL\Base\GraphvizOutput.fs"
-#load @"SL\Geo\Tolerance.fs"
-#load @"SL\Geo\Coord.fs"
-#load @"SL\Geo\WellKnownText.fs"
-#load @"SL\Geo\WGS84.fs"
-#load @"SL\Geo\OSGB36.fs"
-#load @"SL\Geo\SRTransform.fs"
-#load @"SL\PostGIS\ScriptMonad.fs"
-#load @"SL\PostGIS\PostGIS.fs"
-#load @"SL\Scripts\PathFinder.fs"
+#load "..\SLGeo\SL\Base\ErrorTrace.fs"
+#load "..\SLGeo\SL\Base\SqlUtils.fs"
+#load "..\SLGeo\SL\Base\PGSQLConn.fs"
+#load "..\SLGeo\SL\Base\CsvOutput.fs"
+#load "..\SLGeo\SL\Base\NameGen.fs"
+#load "..\SLGeo\SL\Base\GraphvizOutput.fs"
+#load "..\SLGeo\SL\Geo\Tolerance.fs"
+#load "..\SLGeo\SL\Geo\Coord.fs"
+#load "..\SLGeo\SL\Geo\WellKnownText.fs"
+#load "..\SLGeo\SL\Geo\WGS84.fs"
+#load "..\SLGeo\SL\Geo\OSGB36.fs"
+#load "..\SLGeo\SL\Geo\SRTransform.fs"
+#load "..\SLGeo\SL\PostGIS\ScriptMonad.fs"
+#load "..\SLGeo\SL\PostGIS\PostGIS.fs"
+#load "..\SLGeo\SL\Scripts\PathFinder.fs"
 open SL.Base.PGSQLConn
 open SL.Geo
 open SL.PostGIS.ScriptMonad

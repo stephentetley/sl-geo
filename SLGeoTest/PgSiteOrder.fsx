@@ -22,21 +22,21 @@ open Npgsql
 
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 
-#load @"SL\Base\ErrorTrace.fs"
-#load @"SL\Base\SqlUtils.fs"
-#load @"SL\Base\PGSQLConn.fs"
-#load @"SL\Base\ExcelProviderHelper.fs"
-#load @"SL\Base\Grouping.fs"
-#load @"SL\Base\CsvOutput.fs"
-#load @"SL\Geo\Base.fs"
-#load @"SL\Geo\WellKnownText.fs"
-#load @"SL\Geo\WGS84.fs"
-#load @"SL\Geo\OSGB36.fs"
-#load @"SL\Geo\SRTransform.fs"
-#load @"SL\PostGIS\ScriptMonad.fs"
-#load @"SL\PostGIS\PostGIS.fs"
-#load @"SL\Scripts\TspRouting.fs"
-#load @"SL\Scripts\SiteOrder.fs"
+#load "..\SLGeo\SL\Base\ErrorTrace.fs"
+#load "..\SLGeo\SL\Base\SqlUtils.fs"
+#load "..\SLGeo\SL\Base\PGSQLConn.fs"
+#load "..\SLGeo\SL\Base\ExcelProviderHelper.fs"
+#load "..\SLGeo\SL\Base\Grouping.fs"
+#load "..\SLGeo\SL\Base\CsvOutput.fs"
+#load "..\SLGeo\SL\Geo\Base.fs"
+#load "..\SLGeo\SL\Geo\WellKnownText.fs"
+#load "..\SLGeo\SL\Geo\WGS84.fs"
+#load "..\SLGeo\SL\Geo\OSGB36.fs"
+#load "..\SLGeo\SL\Geo\SRTransform.fs"
+#load "..\SLGeo\SL\PostGIS\ScriptMonad.fs"
+#load "..\SLGeo\SL\PostGIS\PostGIS.fs"
+#load "..\SLGeo\SL\Scripts\TspRouting.fs"
+#load "..\SLGeo\SL\Scripts\SiteOrder.fs"
 open SL.Base.SqlUtils
 open SL.Base.PGSQLConn
 open SL.Base.ExcelProviderHelper

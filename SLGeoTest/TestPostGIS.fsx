@@ -30,14 +30,14 @@ open Npgsql.NetTopologySuite
 
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 
-#load @"SL\Base\ErrorTrace.fs"
-#load @"SL\Base\PGSQLConn.fs"
-#load @"SL\Geo\Base.fs"
-#load @"SL\Geo\Tolerance.fs"
-#load @"SL\Geo\WellKnownText.fs"
-#load @"SL\Geo\WGS84.fs"
-#load @"SL\Geo\OSGB36.fs"
-#load @"SL\Geo\SRTransform.fs"
+#load "..\SLGeo\SL\Base\ErrorTrace.fs"
+#load "..\SLGeo\SL\Base\PGSQLConn.fs"
+#load "..\SLGeo\SL\Geo\Base.fs"
+#load "..\SLGeo\SL\Geo\Tolerance.fs"
+#load "..\SLGeo\SL\Geo\WellKnownText.fs"
+#load "..\SLGeo\SL\Geo\WGS84.fs"
+#load "..\SLGeo\SL\Geo\OSGB36.fs"
+#load "..\SLGeo\SL\Geo\SRTransform.fs"
 open SL.Base.PGSQLConn
 open SL.Geo.Base
 open SL.Geo.WGS84

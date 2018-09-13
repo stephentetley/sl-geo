@@ -77,17 +77,6 @@
     <Compile Include="SL\Scripts\PostGISHulls.fs" />
     <Compile Include="SL\Scripts\SiteOrder.fs" />
     <Compile Include="SL\Scripts\PathFinder.fs" />
-    <None Include="PgTspRouting.fsx" />
-    <None Include="PgNearestHospital.fsx" />
-    <None Include="PgDWithin.fsx" />
-    <None Include="PgGroupings.fsx" />
-    <None Include="PgSiteOrder.fsx" />
-    <None Include="PgPathPlan.fsx" />
-    <None Include="PgOutfalls.fsx" />
-    <None Include="TestGeo.fsx" />
-    <None Include="TestPostGIS.fsx" />
-    <None Include="TestCoordTransform.fsx" />
-    <None Include="Outstations.fsx" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

@@ -8,10 +8,10 @@
 open System
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 
-#load @"SL\Geo\Tolerance.fs"
-#load @"SL\Geo\Coord.fs"
-#load @"SL\Geo\WellKnownText.fs"
-#load @"SL\Geo\WebMercator.fs"
+#load "..\SLGeo\SL\Geo\Tolerance.fs"
+#load "..\SLGeo\SL\Geo\Coord.fs"
+#load "..\SLGeo\SL\Geo\WellKnownText.fs"
+#load "..\SLGeo\SL\Geo\WebMercator.fs"
 open SL.Geo.Coord
 open SL.Geo.WellKnownText
 open SL.Geo.WebMercator

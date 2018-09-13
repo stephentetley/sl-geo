@@ -22,17 +22,17 @@ open Npgsql
 
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 
-#load @"SL\Base\ErrorTrace.fs"
-#load @"SL\Base\SqlUtils.fs"
-#load @"SL\Base\PGSQLConn.fs"
-#load @"SL\Base\ExcelProviderHelper.fs"
-#load @"SL\Base\CsvOutput.fs"
-#load @"SL\Geo\Tolerance.fs"
-#load @"SL\Geo\Coord.fs"
-#load @"SL\Geo\WellKnownText.fs"
-#load @"SL\Geo\WGS84.fs"
-#load @"SL\PostGIS\ScriptMonad.fs"
-#load @"SL\PostGIS\PostGIS.fs"
+#load "..\SLGeo\SL\Base\ErrorTrace.fs"
+#load "..\SLGeo\SL\Base\SqlUtils.fs"
+#load "..\SLGeo\SL\Base\PGSQLConn.fs"
+#load "..\SLGeo\SL\Base\ExcelProviderHelper.fs"
+#load "..\SLGeo\SL\Base\CsvOutput.fs"
+#load "..\SLGeo\SL\Geo\Tolerance.fs"
+#load "..\SLGeo\SL\Geo\Coord.fs"
+#load "..\SLGeo\SL\Geo\WellKnownText.fs"
+#load "..\SLGeo\SL\Geo\WGS84.fs"
+#load "..\SLGeo\SL\PostGIS\ScriptMonad.fs"
+#load "..\SLGeo\SL\PostGIS\PostGIS.fs"
 open SL.Base.SqlUtils
 open SL.Base.PGSQLConn
 open SL.Base.ExcelProviderHelper
