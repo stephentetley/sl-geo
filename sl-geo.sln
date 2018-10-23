@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27428.2027
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "sl-geo", "SLGeo\sl-geo.fsproj", "{3732D5FD-ECCA-4C43-A364-E75812AFA447}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "sl-geo", "src\sl-geo.fsproj", "{3732D5FD-ECCA-4C43-A364-E75812AFA447}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "sl-geo-test", "SLGeoTest\sl-geo-test.fsproj", "{54890232-C7DB-4DBD-8A50-C2D9D1C2BB05}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "sl-geo-test", "test\sl-geo-test.fsproj", "{54890232-C7DB-4DBD-8A50-C2D9D1C2BB05}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
