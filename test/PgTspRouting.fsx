@@ -33,9 +33,9 @@ open SL.PostGIS.ScriptMonad
 open SL.Scripts.TspRouting
 
 
-// let [<Literal>] StationsCsv  =  @"..\data\stations.csv"
+let [<Literal>] StationsCsv  =  __SOURCE_DIRECTORY__ +  @"\..\data\stations.csv"
 type StationData = 
-    CsvProvider< @"..\data\stations.csv",
+    CsvProvider< StationsCsv,
                  HasHeaders = true,
                  Schema = "Name(string),Grid_Ref(string)" >
 

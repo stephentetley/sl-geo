@@ -8,7 +8,7 @@
     <ProjectGuid>3732d5fd-ecca-4c43-a364-e75812afa447</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>sl_geo</RootNamespace>
-    <AssemblyName>sl_geo</AssemblyName>
+    <AssemblyName>SLGeo</AssemblyName>
     <UseStandardResourceNames>true</UseStandardResourceNames>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.4.3.0</TargetFSharpCoreVersion>
@@ -61,7 +61,6 @@
     <Compile Include="SL\Base\ExcelProviderHelper.fs" />
     <Compile Include="SL\Base\CsvOutput.fs" />
     <Compile Include="SL\Base\NameGen.fs" />
-    <Compile Include="SL\Base\GraphvizOutput.fs" />
     <Compile Include="SL\Geo\Base.fs" />
     <Compile Include="SL\Geo\Tolerance.fs" />
     <Compile Include="SL\Geo\Coord.fs" />
@@ -128,6 +127,9 @@
     </Reference>
     <Reference Include="ProjNET">
       <HintPath>..\packages\ProjNET4GeoAPI.1.4.0-pre001\lib\net45\ProjNET.dll</HintPath>
+    </Reference>
+    <Reference Include="SLDot">
+      <HintPath>..\packages\__MY_LIBS__\lib\net45\SLDot.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+<assembly><name>SLDot</name></assembly>
+<members>
+<member name="M:SLDot.DotOutput.attrStmt(System.String,Microsoft.FSharp.Collections.FSharpList{SLDot.DotOutput.Attribute})">
+<summary>
+ cat should be one of &quot;graph&quot;, &quot;node&quot;,&quot;edge&quot;
+</summary>
+</member>
+<member name="M:SLDot.DotOutput.tellStatement(System.String)">
+<summary>
+ Same as tellLine but the string is suffixed with &quot;;&quot;.
+</summary>
+</member>
+<member name="M:SLDot.DotOutput.tellLine(System.String)">
+<summary>
+ This is too low level to expose.
+</summary>
+</member>
+<member name="M:SLDot.DotOutput.local``1(Microsoft.FSharp.Core.FSharpFunc{SLDot.DotOutput.Config,SLDot.DotOutput.Config},SLDot.DotOutput.GraphvizOutput{``0})">
+<summary>
+ This is too low level to expose.
+</summary>
+</member>
+<member name="M:SLDot.DotOutput.asksConfig``1(Microsoft.FSharp.Core.FSharpFunc{SLDot.DotOutput.Config,``0})">
+<summary>
+ This is too low level to expose.
+</summary>
+</member>
+<member name="P:SLDot.DotOutput.askConfig">
+<summary>
+ This is too low level to expose.
+</summary>
+</member>
+</members>
+</doc>

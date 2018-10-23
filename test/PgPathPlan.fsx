@@ -1,6 +1,11 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
+#I @"..\packages\__MY_LIBS__\lib\net45"
+#r "SLDot.dll"
+
+
+
 #I @"..\packages\FSharp.Data.3.0.0-beta4\lib\net45"
 #r @"FSharp.Data.dll"
 open FSharp.Data
@@ -23,12 +28,13 @@ open FSharpx.Collections
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 
 
+
 #load "..\src\SL\Base\ErrorTrace.fs"
 #load "..\src\SL\Base\SqlUtils.fs"
 #load "..\src\SL\Base\PGSQLConn.fs"
 #load "..\src\SL\Base\CsvOutput.fs"
 #load "..\src\SL\Base\NameGen.fs"
-#load "..\src\SL\Base\GraphvizOutput.fs"
+// #load "..\src\SL\Base\GraphvizOutput.fs"
 #load "..\src\SL\Geo\Tolerance.fs"
 #load "..\src\SL\Geo\Coord.fs"
 #load "..\src\SL\Geo\WellKnownText.fs"

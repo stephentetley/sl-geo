@@ -10,10 +10,12 @@ open FSharpx.Collections
 
 open Npgsql
 
+open SLDot.DotOutput
+
 open SL.Base.SqlUtils
 open SL.Base.PGSQLConn
 open SL.Base.NameGen
-open SL.Base.GraphvizOutput
+// open SL.Base.GraphvizOutput
 open SL.Base
 open SL.Geo
 open SL.PostGIS.ScriptMonad
@@ -584,7 +586,7 @@ let graphvizDict : ExtractRouteDict<GraphvizNode, GraphvizEdge> =
 
 
 let genDotNode (node1:GraphvizNode) : GraphvizOutput<unit> = 
-    SL.Base.GraphvizOutput.node node1.NodeId [label node1.NodeLabel]
+    SLDot.DotOutput.node node1.NodeId [label node1.NodeLabel]
 
 /// EdgeCache is (from,to) names
 type EdgeCache = (string * string) list
@@ -665,9 +667,9 @@ let genDotRanks (ranks:Rank list) : GraphvizOutput<unit> =
         anonSubgraph 
             <| graphvizOutput { 
                 do! attrib <| rank "same"
-                do! GraphvizOutput.mapMz genDotNode (snd rank1)
+                do! SLDot.DotOutput.mapMz genDotNode (snd rank1)
                 }
-    GraphvizOutput.mapMz rankProc ranks
+    SLDot.DotOutput.mapMz rankProc ranks
 
 let generateDot (graphName:string) (pathTree: PathTree<GraphvizNode>) (routes: Route<GraphvizNode, GraphvizEdge> list) : GraphvizOutput<unit> = 
     let ranks = extractRanksFromPathTree pathTree
