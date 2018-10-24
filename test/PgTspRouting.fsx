@@ -15,21 +15,21 @@ open Npgsql
 #r "FParsec"
 #r "FParsecCS"
 
-#load "..\src\SL\Base\ErrorTrace.fs"
-#load "..\src\SL\Base\SqlUtils.fs"
-#load "..\src\SL\Base\PGSQLConn.fs"
-#load "..\src\SL\Base\CsvOutput.fs"
-#load "..\src\SL\Geo\Coord.fs"
-#load "..\src\SL\Geo\WellKnownText.fs"
-#load "..\src\SL\Geo\WGS84.fs"
-#load "..\src\SL\PostGIS\ScriptMonad.fs"
-#load "..\src\SL\PostGIS\PostGIS.fs"
-#load "..\src\SL\Scripts\TspRouting.fs"
-open SL.Base.PGSQLConn
-open SL.Base.CsvOutput
-open SL.Geo.Coord
-open SL.PostGIS.ScriptMonad
-open SL.Scripts.TspRouting
+#load "..\src\SLGeo\Base\PostGISConn\ErrorTrace.fs"
+#load "..\src\SLGeo\Base\PostGISConn\SqlUtils.fs"
+#load "..\src\SLGeo\Base\PostGISConn\PGSQLConn.fs"
+#load "..\src\SLGeo\Extra\CsvOutput.fs"
+#load "..\src\SLGeo\Base\Coord.fs"
+#load "..\src\SLGeo\Base\WellKnownText.fs"
+#load "..\src\SLGeo\Base\WGS84.fs"
+#load "..\src\SLGeo\Shell\ScriptMonad.fs"
+#load "..\src\SLGeo\Shell\PostGIS.fs"
+#load "..\src\SLGeo\Scripts\TspRouting.fs"
+open SLGeo.Base.PostGISConn.PGSQLConn
+open SLGeo.Extra.CsvOutput
+open SLGeo.Base.Coord
+open SLGeo.Shell.ScriptMonad
+open SLGeo.Scripts.TspRouting
 
 
 let [<Literal>] StationsCsv  =  __SOURCE_DIRECTORY__ +  @"\..\data\stations.csv"

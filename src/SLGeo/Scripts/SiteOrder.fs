@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-module SL.Scripts.SiteOrder
+module SLGeo.Scripts.SiteOrder
 
-open SL.Base.Grouping
-open SL.Geo.WellKnownText
-open SL.Geo.WGS84
-open SL.PostGIS.ScriptMonad
-open SL.PostGIS.PostGIS
-open SL.Scripts.TspRouting
+open SLGeo.Extra.Grouping
+open SLGeo.Base.WellKnownText
+open SLGeo.Base.WGS84
+open SLGeo.Shell.ScriptMonad
+open SLGeo.Shell.PostGIS
+open SLGeo.Scripts.TspRouting
 
 // Note Scripts.Grouping now feels "not worked out".
 // Potentially this module will replace it.

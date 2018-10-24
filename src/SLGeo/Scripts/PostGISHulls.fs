@@ -1,16 +1,16 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-module SL.Scripts.PostGISHulls
+module SLGeo.Scripts.PostGISHulls
 
 open Npgsql
 
-open SL.Base.Grouping
-open SL.Base.CsvOutput
-open SL.Geo
-open SL.PostGIS.ScriptMonad
-open SL.PostGIS.PostGIS
-
+open SLGeo.Extra.Grouping
+open SLGeo.Extra.CsvOutput
+open SLGeo.Base
+open SLGeo.Shell.ScriptMonad
+open SLGeo.Shell.PostGIS
+open SLGeo.Shell
 
 
 
@@ -56,7 +56,7 @@ type ConcaveHullOptions =
 let private genHullsCsv (make1:Grouping<'Key,'a> -> Script<'Key * WellKnownText<WGS84> * seq<'a>>) (dict:GroupingMakeHullsDict<'Key,'a>) (source:seq<'a>) (outputFile:string) : Script<unit> =
     scriptMonad { 
         let groups = groupingBy dict.GroupByOperation source
-        let! hulls = SL.PostGIS.ScriptMonad.traverseM make1 groups
+        let! hulls = ScriptMonad.traverseM make1 groups
         let rows = 
             Seq.mapi (fun ix (key,wkt,elts) -> dict.MakeCsvRow ix key wkt elts) <| filterPOLYGONs hulls
         let csvProc:CsvOutput<unit> = writeRowsWithHeaders dict.CsvHeaders rows
@@ -72,13 +72,13 @@ let private genHullsCsv (make1:Grouping<'Key,'a> -> Script<'Key * WellKnownText<
 
 let generateConcaveHullsCsv (options:ConcaveHullOptions) (dict:GroupingMakeHullsDict<'Key,'a>) (source:seq<'a>) (outputFile:string) : Script<unit> =
     let make1 (group1:Grouping<'Key,'a>) : Script<'Key * WellKnownText<WGS84> * seq<'a>> = 
-        SL.PostGIS.ScriptMonad.fmapM (fun x -> (group1.GroupingKey, x, group1.Elements)) 
+        ScriptMonad.fmapM (fun x -> (group1.GroupingKey, x, group1.Elements)) 
             <| concaveHull1 dict group1 options.TargetPercentage
     genHullsCsv make1 dict source outputFile
 
 let generateConvexHullsCsv (dict:GroupingMakeHullsDict<'Key,'a>) (source:seq<'a>) (outputFile:string) : Script<unit> =
     let make1 (group1:Grouping<'Key,'a>) : Script<'Key * WellKnownText<WGS84> * seq<'a>> =  
-        SL.PostGIS.ScriptMonad.fmapM (fun x -> (group1.GroupingKey, x, group1.Elements)) 
+        ScriptMonad.fmapM (fun x -> (group1.GroupingKey, x, group1.Elements)) 
             <| convexHull1 dict group1
     genHullsCsv make1 dict source outputFile
 

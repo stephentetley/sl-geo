@@ -22,34 +22,34 @@ open Npgsql
 
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 
-#load "..\src\SL\Base\ErrorTrace.fs"
-#load "..\src\SL\Base\SqlUtils.fs"
-#load "..\src\SL\Base\PGSQLConn.fs"
-#load "..\src\SL\Base\ExcelProviderHelper.fs"
-#load "..\src\SL\Base\Grouping.fs"
-#load "..\src\SL\Base\CsvOutput.fs"
-#load "..\src\SL\Geo\Base.fs"
-#load "..\src\SL\Geo\WellKnownText.fs"
-#load "..\src\SL\Geo\WGS84.fs"
-#load "..\src\SL\Geo\OSGB36.fs"
-#load "..\src\SL\Geo\SRTransform.fs"
-#load "..\src\SL\PostGIS\ScriptMonad.fs"
-#load "..\src\SL\PostGIS\PostGIS.fs"
-#load "..\src\SL\Scripts\TspRouting.fs"
-#load "..\src\SL\Scripts\SiteOrder.fs"
-open SL.Base.SqlUtils
-open SL.Base.PGSQLConn
-open SL.Base.ExcelProviderHelper
-open SL.Base.Grouping
-open SL.Base.CsvOutput
-open SL.Geo.WellKnownText
-open SL.Geo.WGS84
-open SL.Geo.OSGB36
-open SL.Geo.SRTransform
-open SL.PostGIS.ScriptMonad
-open SL.PostGIS.PostGIS
-open SL.Scripts.TspRouting
-open SL.Scripts.SiteOrder
+#load "..\src\SLGeo\Base\PostGISConn\ErrorTrace.fs"
+#load "..\src\SLGeo\Base\PostGISConn\SqlUtils.fs"
+#load "..\src\SLGeo\Base\PostGISConn\PGSQLConn.fs"
+#load "..\src\SLGeo\Extra\ExcelProviderHelper.fs"
+#load "..\src\SLGeo\Extra\Grouping.fs"
+#load "..\src\SLGeo\Extra\CsvOutput.fs"
+#load "..\src\SLGeo\Base\Base.fs"
+#load "..\src\SLGeo\Base\WellKnownText.fs"
+#load "..\src\SLGeo\Base\WGS84.fs"
+#load "..\src\SLGeo\Base\OSGB36.fs"
+#load "..\src\SLGeo\Base\SRTransform.fs"
+#load "..\src\SLGeo\Shell\ScriptMonad.fs"
+#load "..\src\SLGeo\Shell\PostGIS.fs"
+#load "..\src\SLGeo\Scripts\TspRouting.fs"
+#load "..\src\SLGeo\Scripts\SiteOrder.fs"
+open SLGeo.Base.PostGISConn.SqlUtils
+open SLGeo.Base.PostGISConn.PGSQLConn
+open SLGeo.Extra.ExcelProviderHelper
+open SLGeo.Extra.Grouping
+open SLGeo.Extra.CsvOutput
+open SLGeo.Base.WellKnownText
+open SLGeo.Base.WGS84
+open SLGeo.Base.OSGB36
+open SLGeo.Base.SRTransform
+open SLGeo.Shell.ScriptMonad
+open SLGeo.Shell.PostGIS
+open SLGeo.Scripts.TspRouting
+open SLGeo.Scripts.SiteOrder
 
 
 /// Note SheetName does not seem to like underscores...

@@ -20,27 +20,28 @@ open Npgsql
 #r "FParsec"
 #r "FParsecCS"
 
-#load "..\src\SL\Base\ErrorTrace.fs"
-#load "..\src\SL\Base\SQLUtils.fs"
-#load "..\src\SL\Base\PGSQLConn.fs"
-#load "..\src\SL\Base\ExcelProviderHelper.fs"
-#load "..\src\SL\Base\CsvOutput.fs"
-#load "..\src\SL\Geo\Base.fs"
-#load "..\src\SL\Geo\WellKnownText.fs"
-#load "..\src\SL\Geo\WGS84.fs"
-#load "..\src\SL\Geo\OSGB36.fs"
-#load "..\src\SL\Geo\SRTransform.fs"
-#load "..\src\SL\PostGIS\ScriptMonad.fs"
-#load "..\src\SL\PostGIS\PostGIS.fs"
-#load "..\src\SL\Scripts\NearestHospital.fs"
-open SL.Base.PGSQLConn
-open SL.Base.ExcelProviderHelper
-open SL.Base
-open SL.Geo.WGS84
-open SL.Geo.OSGB36
-open SL.Geo.SRTransform
-open SL.PostGIS.ScriptMonad
-open SL.Scripts.NearestHospital
+#load "..\src\SLGeo\Base\PostGISConn\ErrorTrace.fs"
+#load "..\src\SLGeo\Base\PostGISConn\SqlUtils.fs"
+#load "..\src\SLGeo\Base\PostGISConn\PGSQLConn.fs"
+#load "..\src\SLGeo\Extra\CsvOutput.fs"
+#load "..\src\SLGeo\Extra\ExcelProviderHelper.fs"
+#load "..\src\SLGeo\Base\Base.fs"
+#load "..\src\SLGeo\Base\WellKnownText.fs"
+#load "..\src\SLGeo\Base\WGS84.fs"
+#load "..\src\SLGeo\Base\OSGB36.fs"
+#load "..\src\SLGeo\Base\SRTransform.fs"
+#load "..\src\SLGeo\Shell\ScriptMonad.fs"
+#load "..\src\SLGeo\Shell\PostGIS.fs"
+#load "..\src\SLGeo\Scripts\NearestHospital.fs"
+open SLGeo.Base.PostGISConn.PGSQLConn
+open SLGeo.Extra.ExcelProviderHelper
+open SLGeo.Extra
+open SLGeo.Base
+open SLGeo.Base.WGS84
+open SLGeo.Base.OSGB36
+open SLGeo.Base.SRTransform
+open SLGeo.Shell.ScriptMonad
+open SLGeo.Scripts.NearestHospital
 
 
 

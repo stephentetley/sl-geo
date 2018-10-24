@@ -1,16 +1,17 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-module SL.Scripts.TspRouting
+module SLGeo.Scripts.TspRouting
 
 open Npgsql
 
-open SL.Base.SqlUtils
-open SL.Base.PGSQLConn
-open SL.Base.CsvOutput
-open SL.Geo
-open SL.PostGIS.ScriptMonad
-open SL.PostGIS.PostGIS
+open SLGeo.Base.PostGISConn.SqlUtils
+open SLGeo.Base.PostGISConn.PGSQLConn
+open SLGeo.Base.PostGISConn
+open SLGeo.Extra.CsvOutput
+open SLGeo.Base
+open SLGeo.Shell.ScriptMonad
+open SLGeo.Shell
 
 
 
@@ -65,7 +66,7 @@ let insertVertices (dict:TspNodeInsertDict<'row>) (vertices:'row list) : Script<
             // Option.map (fun pt -> (pt, dict.MakeNodeLabel row)) 
     scriptMonad {             
         let! goodData = fmapM (List.choose id) <| mapM good1 vertices 
-        let! count =  liftAtomically <| SL.Base.PGSQLConn.sumTraverseM proc1 goodData
+        let! count =  liftAtomically <| PGSQLConn.sumTraverseM proc1 goodData
         return count
     }
 
@@ -119,7 +120,7 @@ let eucledianTSP (startId:int) (endId:int) : Script<TspRoute> =
         ; GridRef       = gridRef
         ; Cost          = float <| reader.GetDouble(5)
         ; AggCost       = float <| reader.GetDouble(6) } 
-    SL.PostGIS.ScriptMonad.fmapM dropLast << liftAtomically <| execReaderList query procM  
+    ScriptMonad.fmapM dropLast << liftAtomically <| execReaderList query procM  
 
 
 let makeFindIdByLabelQUERY (label:string) : string = 

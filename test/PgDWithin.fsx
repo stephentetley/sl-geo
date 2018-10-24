@@ -22,23 +22,23 @@ open Npgsql
 
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 
-#load "..\src\SL\Base\ErrorTrace.fs"
-#load "..\src\SL\Base\SqlUtils.fs"
-#load "..\src\SL\Base\PGSQLConn.fs"
-#load "..\src\SL\Base\ExcelProviderHelper.fs"
-#load "..\src\SL\Base\CsvOutput.fs"
-#load "..\src\SL\Geo\Coord.fs"
-#load "..\src\SL\Geo\WellKnownText.fs"
-#load "..\src\SL\Geo\WGS84.fs"
-#load "..\src\SL\PostGIS\ScriptMonad.fs"
-#load "..\src\SL\PostGIS\PostGIS.fs"
-open SL.Base.SqlUtils
-open SL.Base.PGSQLConn
-open SL.Base.ExcelProviderHelper
-open SL.Base.CsvOutput
-open SL.Geo.Coord
-open SL.PostGIS.ScriptMonad
-open SL.PostGIS.PostGIS
+#load "..\src\SLGeo\Base\PostGISConn\ErrorTrace.fs"
+#load "..\src\SLGeo\Base\PostGISConn\SqlUtils.fs"
+#load "..\src\SLGeo\Base\PostGISConn\PGSQLConn.fs"
+#load "..\src\SLGeo\Extra\ExcelProviderHelper.fs"
+#load "..\src\SLGeo\Extra\CsvOutput.fs"
+#load "..\src\SLGeo\Base\Coord.fs"
+#load "..\src\SLGeo\Base\WellKnownText.fs"
+#load "..\src\SLGeo\Base\WGS84.fs"
+#load "..\src\SLGeo\Shell\ScriptMonad.fs"
+#load "..\src\SLGeo\Shell\PostGIS.fs"
+open SLGeo.Base.PostGISConn.SqlUtils
+open SLGeo.Base.PostGISConn.PGSQLConn
+open SLGeo.Extra.ExcelProviderHelper
+open SLGeo.Extra.CsvOutput
+open SLGeo.Base.Coord
+open SLGeo.Shell.ScriptMonad
+open SLGeo.Shell
 
 
 
@@ -68,7 +68,7 @@ let private makeDWithinINSERT (row:SiteListRow) : string option =
                 ; stringValue       "name"              (row.``#SITENAME``.Trim())
                 ; stringValue       "function_type"     (row.``#ASSETTYPE``.Trim())
                 ; stringValue       "osgb36_ref"        (row.``#GRIDREF``.Trim())
-                ; literalValue      "location"          <| makeSTGeogFromTextPointLiteral (osgb36ToWGS84 osgb36)
+                ; literalValue      "location"          <| PostGIS.makeSTGeogFromTextPointLiteral (osgb36ToWGS84 osgb36)
                 ]
     Option.map make1 <| tryReadOSGB36Point row.``#GRIDREF``
 
@@ -78,7 +78,7 @@ let insertRows (rows:seq<SiteListRow>) : Script<int> =
         match makeDWithinINSERT row with
         | Some sql -> execNonQuery sql
         | None -> pgsqlConn.Return 0
-    liftPGSQLConn <| SL.Base.PGSQLConn.sumTraverseM proc1 rows
+    liftAtomically <| SLGeo.Base.PostGISConn.PGSQLConn.sumTraverseM proc1 rows
 
 
 let SetupDB(password:string) : unit = 
@@ -113,7 +113,7 @@ let neighboursWithin (point:WGS84Point) (distance:float<meter>) : Script<Neighbo
     let procM (reader:NpgsqlDataReader) : NeighbourRec = 
         { Uid   = reader.GetString(0)
         ; Name  = reader.GetString(1) }
-    liftPGSQLConn <| execReaderList query procM  
+    liftAtomically <| execReaderList query procM  
 
 let csvHeaders = [ "Uid"; "Name"; "Neighbours within 25m"; "Neighbours within 1km" ]
 
@@ -124,11 +124,11 @@ let makeOutputRow (row:SiteListRow) : Script<RowWriter> =
         match tryReadOSGB36Point row.``#GRIDREF`` with
         | None -> scriptMonad.Return []
         | Some osgb -> 
-            SL.PostGIS.ScriptMonad.fmapM (List.map (fun (x:NeighbourRec) -> x.Name) << removeSelf)
+            ScriptMonad.fmapM (List.map (fun (x:NeighbourRec) -> x.Name) << removeSelf)
                 <| neighboursWithin (osgb36ToWGS84 osgb) dist
     scriptMonad { 
-        let! neighbours25m  = SL.PostGIS.ScriptMonad.fmapM (String.concat "; ") <| getNeighbours 25.0<meter> row.``#GRIDREF``
-        let! neighbours1k   = SL.PostGIS.ScriptMonad.fmapM (String.concat "; ") <| getNeighbours 1000.0<meter> row.``#GRIDREF``
+        let! neighbours25m  = ScriptMonad.fmapM (String.concat "; ") <| getNeighbours 25.0<meter> row.``#GRIDREF``
+        let! neighbours1k   = ScriptMonad.fmapM (String.concat "; ") <| getNeighbours 1000.0<meter> row.``#GRIDREF``
         return [ tellQuotedString   row.``#SAINUMBER``
                ; tellQuotedString   row.``#SITENAME``
                ; tellQuotedString   neighbours25m
@@ -142,7 +142,7 @@ let main (password:string) : unit =
     let conn = pgsqlConnParamsTesting "spt_geo" password
     runConsoleScript (printfn "Success: %A") conn 
         <| scriptMonad { 
-                let! rows = SL.PostGIS.ScriptMonad.mapM makeOutputRow sites
+                let! rows = ScriptMonad.mapM makeOutputRow sites
                 let csvProc:CsvOutput<unit> = 
                     writeRowsWithHeaders csvHeaders rows
                 do (outputToNew {Separator=","} csvProc outputFile)

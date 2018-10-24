@@ -1,20 +1,22 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-module SL.Scripts.NearestHospital
+module SLGeo.Scripts.NearestHospital
 
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 
 open FSharp.Data
 open Npgsql
 
-open SL.Base.SqlUtils
-open SL.Base.PGSQLConn
-open SL.Base.CsvOutput
-open SL.Geo
-open SL.PostGIS.ScriptMonad
-open SL.PostGIS.PostGIS
 
+open SLGeo.Base.PostGISConn.SqlUtils
+open SLGeo.Base.PostGISConn.PGSQLConn
+open SLGeo.Extra.CsvOutput
+open SLGeo.Extra
+open SLGeo.Base
+open SLGeo.Shell.ScriptMonad
+open SLGeo.Shell.PostGIS
+open SLGeo.Shell
 
 // Use PostGIS for nearest neighour and distance.
 
@@ -124,7 +126,7 @@ let nearestHospitalQuery (point:WGS84Point) : Script<HospitalRecord list> =
 
 let nearestHospitalToPoint (point:WGS84Point) : Script<HospitalRecord option> = 
     let first xs = match xs with | x :: _ -> Some x; | [] -> None
-    SL.PostGIS.ScriptMonad.fmapM first <| nearestHospitalQuery point
+    ScriptMonad.fmapM first <| nearestHospitalQuery point
 
 
 
@@ -140,7 +142,7 @@ let nearestHospitals (extractLoc:'asset -> Script<WGS84Point>) (assets:seq<'asse
             let! hospital = nearestHospital extractLoc asset
             return asset, hospital
             }
-    SL.PostGIS.ScriptMonad.traverseM proc1 assets
+    ScriptMonad.traverseM proc1 assets
     
 
 // "End-to-end" procedure for finding and outputing nearest hospitals.
@@ -167,9 +169,9 @@ let generateNearestHospitalsCsv (dict:NearestHospitalDict<'asset>) (source:'asse
 
     scriptMonad { 
         let! xs = nearestHospitals dict.ExtractLocation source
-        let! (rowWriters:seq<RowWriter>) = SL.PostGIS.ScriptMonad.traverseM rowProc xs
+        let! (rowWriters:seq<RowWriter>) = ScriptMonad.traverseM rowProc xs
         let csvProc:CsvOutput<unit> = writeRowsWithHeaders dict.CsvHeaders rowWriters
-        do (SL.Base.CsvOutput.outputToNew {Separator=","} csvProc outputFile)
+        do (CsvOutput.outputToNew {Separator=","} csvProc outputFile)
         return ()
     }
 
