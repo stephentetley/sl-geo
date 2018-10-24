@@ -5,8 +5,8 @@ module SL.PostGIS.ScriptMonad
 
 open System.IO
 
-open SL.Base.ErrorTrace
-open SL.Base
+open SLGeo.PostGISConn.ErrorTrace
+open SLGeo.PostGISConn
 
 
 type Result<'a> = 

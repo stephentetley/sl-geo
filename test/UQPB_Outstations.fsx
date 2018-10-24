@@ -23,9 +23,9 @@ open FSharp.ExcelProvider
 
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 
-#load "..\src\SL\Base\ErrorTrace.fs"
-#load "..\src\SL\Base\SqlUtils.fs"
-#load "..\src\SL\Base\PGSQLConn.fs"
+#load "..\src\SLGeo\PostGISConn\ErrorTrace.fs"
+#load "..\src\SLGeo\PostGISConn\SqlUtils.fs"
+#load "..\src\SLGeo\PostGISConn\PGSQLConn.fs"
 #load "..\src\SL\Base\CsvOutput.fs"
 #load "..\src\SL\Base\ExcelProviderHelper.fs"
 #load "..\src\SL\Geo\Coord.fs"
@@ -35,7 +35,7 @@ open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 #load "..\src\SL\Geo\SRTransform.fs"
 #load "..\src\SL\PostGIS\ScriptMonad.fs"
 #load "..\src\SL\PostGIS\PostGIS.fs"
-open SL.Base.PGSQLConn
+open SLGeo.PostGISConn.PGSQLConn
 open SL.Base.ExcelProviderHelper
 open SL.Base.CsvOutput
 open SL.Geo

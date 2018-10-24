@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-module SL.Base.PGSQLConn
+module SLGeo.PostGISConn.PGSQLConn
 
 
 open Npgsql
 
-open SL.Base.ErrorTrace
+open SLGeo.PostGISConn.ErrorTrace
 
 
 

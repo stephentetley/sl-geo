@@ -54,9 +54,9 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="SL\Base\ErrorTrace.fs" />
-    <Compile Include="SL\Base\SqlUtils.fs" />
-    <Compile Include="SL\Base\PGSQLConn.fs" />
+    <Compile Include="SLGeo\PostGISConn\ErrorTrace.fs" />
+    <Compile Include="SLGeo\PostGISConn\SqlUtils.fs" />
+    <Compile Include="SLGeo\PostGISConn\PGSQLConn.fs" />
     <Compile Include="SL\Base\Grouping.fs" />
     <Compile Include="SL\Base\ExcelProviderHelper.fs" />
     <Compile Include="SL\Base\CsvOutput.fs" />

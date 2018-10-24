@@ -6,11 +6,10 @@ module SL.PostGIS.PostGIS
 open Npgsql
 
 
-open SL.Base
+
+open SLGeo.PostGISConn
 open SL.Geo
-// open SL.Geo.WGS84
 open SL.PostGIS.ScriptMonad
-// open SL.Base
 
 
 

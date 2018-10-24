@@ -7,7 +7,7 @@ namespace SL.Geo
 open Microsoft.FSharp.Core
 
 
-open SL.Base.PGSQLConn
+open SLGeo.PostGISConn.PGSQLConn
 open SL.Geo.WellKnownText
 open SL.Geo.WGS84
 open SL.Geo.OSGB36
