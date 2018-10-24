@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-module SLGeo.PostGISConn.SqlUtils
+module SLGeo.Base.PostGISConn.SqlUtils
 
 open System
 

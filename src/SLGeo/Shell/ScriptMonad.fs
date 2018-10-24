@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-module SL.PostGIS.ScriptMonad
+module SLGeo.Shell.ScriptMonad
 
 open System.IO
 
-open SLGeo.PostGISConn.ErrorTrace
-open SLGeo.PostGISConn
+open SLGeo.Base.PostGISConn.ErrorTrace
+open SLGeo.Base.PostGISConn
 
 
 type Result<'a> = 

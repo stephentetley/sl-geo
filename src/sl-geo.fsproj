@@ -54,13 +54,9 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="SLGeo\PostGISConn\ErrorTrace.fs" />
-    <Compile Include="SLGeo\PostGISConn\SqlUtils.fs" />
-    <Compile Include="SLGeo\PostGISConn\PGSQLConn.fs" />
-    <Compile Include="SLGeo\Extra\Grouping.fs" />
-    <Compile Include="SLGeo\Extra\ExcelProviderHelper.fs" />
-    <Compile Include="SLGeo\Extra\CsvOutput.fs" />
-    <Compile Include="SLGeo\Extra\NameGen.fs" />
+    <Compile Include="SLGeo\Base\PostGISConn\ErrorTrace.fs" />
+    <Compile Include="SLGeo\Base\PostGISConn\SqlUtils.fs" />
+    <Compile Include="SLGeo\Base\PostGISConn\PGSQLConn.fs" />
     <Compile Include="SLGeo\Base\Base.fs" />
     <Compile Include="SLGeo\Base\Coord.fs" />
     <Compile Include="SLGeo\Base\WellKnownText.fs" />
@@ -68,13 +64,17 @@
     <Compile Include="SLGeo\Base\OSGB36.fs" />
     <Compile Include="SLGeo\Base\WebMercator.fs" />
     <Compile Include="SLGeo\Base\SRTransform.fs" />
-    <Compile Include="SL\PostGIS\ScriptMonad.fs" />
-    <Compile Include="SL\PostGIS\PostGIS.fs" />
-    <Compile Include="SL\Scripts\TspRouting.fs" />
-    <Compile Include="SL\Scripts\NearestHospital.fs" />
-    <Compile Include="SL\Scripts\PostGISHulls.fs" />
-    <Compile Include="SL\Scripts\SiteOrder.fs" />
-    <Compile Include="SL\Scripts\PathFinder.fs" />
+    <Compile Include="SLGeo\Shell\ScriptMonad.fs" />
+    <Compile Include="SLGeo\Shell\PostGIS.fs" />
+    <Compile Include="SLGeo\Extra\Grouping.fs" />
+    <Compile Include="SLGeo\Extra\ExcelProviderHelper.fs" />
+    <Compile Include="SLGeo\Extra\CsvOutput.fs" />
+    <Compile Include="SLGeo\Extra\NameGen.fs" />
+    <Compile Include="SLGeo\Scripts\TspRouting.fs" />
+    <Compile Include="SLGeo\Scripts\NearestHospital.fs" />
+    <Compile Include="SLGeo\Scripts\PostGISHulls.fs" />
+    <Compile Include="SLGeo\Scripts\SiteOrder.fs" />
+    <Compile Include="SLGeo\Scripts\PathFinder.fs" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

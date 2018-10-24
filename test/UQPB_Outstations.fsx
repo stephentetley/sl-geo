@@ -23,24 +23,24 @@ open FSharp.ExcelProvider
 
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 
-#load "..\src\SLGeo\PostGISConn\ErrorTrace.fs"
-#load "..\src\SLGeo\PostGISConn\SqlUtils.fs"
-#load "..\src\SLGeo\PostGISConn\PGSQLConn.fs"
+#load "..\src\SLGeo\Base\PostGISConn\ErrorTrace.fs"
+#load "..\src\SLGeo\Base\PostGISConn\SqlUtils.fs"
+#load "..\src\SLGeo\Base\PostGISConn\PGSQLConn.fs"
 #load "..\src\SLGeo\Base\Coord.fs"
 #load "..\src\SLGeo\Base\WellKnownText.fs"
 #load "..\src\SLGeo\Base\OSGB36.fs"
 #load "..\src\SLGeo\Base\WGS84.fs"
 #load "..\src\SLGeo\Base\SRTransform.fs"
+#load "..\src\SLGeo\Shell\ScriptMonad.fs"
+#load "..\src\SLGeo\Shell\PostGIS.fs"
 #load "..\src\SLGeo\Extra\CsvOutput.fs"
 #load "..\src\SLGeo\Extra\ExcelProviderHelper.fs"
-#load "..\src\SL\PostGIS\ScriptMonad.fs"
-#load "..\src\SL\PostGIS\PostGIS.fs"
-open SLGeo.PostGISConn.PGSQLConn
+open SLGeo.Base.PostGISConn.PGSQLConn
 open SLGeo.Base
+open SLGeo.Shell.ScriptMonad
+open SLGeo.Shell.PostGIS
 open SLGeo.Extra.ExcelProviderHelper
 open SLGeo.Extra.CsvOutput
-open SL.PostGIS.ScriptMonad
-open SL.PostGIS.PostGIS
 
 type OutstationData = 
     CsvProvider< @"G:\work\Projects\uqpb\RTS-export-for-Parent_OU.trim.csv",
@@ -95,7 +95,7 @@ let makeInsert (row:OutstationRow) : Script<string option> =
 let genDbInsertScript (password:string) : unit = 
     let script = 
          scriptMonad { 
-            let! xs = readOutstations () |> Seq.toList |> mapM makeInsert
+            let! xs = readOutstations () |> Seq.toList |> SLGeo.Shell.ScriptMonad.mapM makeInsert
             let ys = Seq.choose id xs 
             return (String.concat "\n" ys)
         }
@@ -133,7 +133,7 @@ let nearestExistingOutstationList (point:WGS84Point) : Script<OutstationRecord l
 
 let nearestExistingOutstation (point:WGS84Point) : Script<OutstationRecord option> = 
     let first xs = match xs with | x :: _ -> Some x; | [] -> None
-    SL.PostGIS.ScriptMonad.fmapM first <| nearestExistingOutstationList point
+    SLGeo.Shell.ScriptMonad.fmapM first <| nearestExistingOutstationList point
 
 let getNearestExistingOutstation (source:string) : Script<OutstationRecord option> = 
     match tryReadOSGB36Point source with
@@ -196,9 +196,10 @@ let OutputNeighbours(password:string) : unit =
         <| scriptMonad { 
                 let rows1:SiteRow list = readSiteRows "Batch_2"
                 let! rows2 = 
-                    forM rows1 (fun (manhole:SiteRow) -> 
+                    SLGeo.Shell.ScriptMonad.forM rows1 
+                                (fun (manhole:SiteRow) -> 
                                     getNearestExistingOutstation manhole.``Grid Ref (NGR)`` >>= fun ans ->
-                                    sreturn (manhole, ans)  )
+                                    SLGeo.Shell.ScriptMonad.sreturn (manhole, ans)  )
                 let csvProc:CsvOutput<unit> = writeRecordsWithHeaders csvHeaders rows2 tellOutputRow
                 do (outputToNew {Separator=","} csvProc outFile)
                 return ()

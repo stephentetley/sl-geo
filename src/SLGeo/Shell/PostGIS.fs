@@ -1,15 +1,15 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-module SL.PostGIS.PostGIS
+module SLGeo.Shell.PostGIS
 
 open Npgsql
 
 
 
-open SLGeo.PostGISConn
-open SL.Geo
-open SL.PostGIS.ScriptMonad
+open SLGeo.Base.PostGISConn
+open SLGeo.Base
+open SLGeo.Shell.ScriptMonad
 
 
 
