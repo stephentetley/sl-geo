@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-namespace SL.Geo
+namespace SLGeo.Base
 
 open System
 open System.Text.RegularExpressions
@@ -9,7 +9,7 @@ open System.Text.RegularExpressions
 open Microsoft.FSharp.Core
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 
-open SL.Geo
+open SLGeo.Base
 
 
 // TODO Transformations should use the proj4 binding (fs-proj4) when it is ready...

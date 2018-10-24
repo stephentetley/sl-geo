@@ -2,15 +2,15 @@
 // License: BSD 3 Clause
 
 
-namespace SL.Geo
+namespace SLGeo.Base
 
 open System
 
 open Microsoft.FSharp.Core
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 
-open SL.Geo.Coord
-open SL.Geo.WellKnownText
+open SLGeo.Base.Coord
+open SLGeo.Base.WellKnownText
 
 // This is the coordinate system of OpenStreetMap data
 

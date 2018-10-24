@@ -1,16 +1,16 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-namespace SL.Geo
+namespace SLGeo.Base
 
 
 open Microsoft.FSharp.Core
 
 
 open SLGeo.PostGISConn.PGSQLConn
-open SL.Geo.WellKnownText
-open SL.Geo.WGS84
-open SL.Geo.OSGB36
+open SLGeo.Base.WellKnownText
+open SLGeo.Base.WGS84
+open SLGeo.Base.OSGB36
 
 
 
