@@ -26,8 +26,8 @@ open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 #load "..\src\SLGeo\PostGISConn\ErrorTrace.fs"
 #load "..\src\SLGeo\PostGISConn\SqlUtils.fs"
 #load "..\src\SLGeo\PostGISConn\PGSQLConn.fs"
-#load "..\src\SL\Base\CsvOutput.fs"
-#load "..\src\SL\Base\ExcelProviderHelper.fs"
+#load "..\src\SLGeo\Extra\CsvOutput.fs"
+#load "..\src\SLGeo\Extra\ExcelProviderHelper.fs"
 #load "..\src\SL\Geo\Coord.fs"
 #load "..\src\SL\Geo\WellKnownText.fs"
 #load "..\src\SL\Geo\OSGB36.fs"
@@ -36,8 +36,8 @@ open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 #load "..\src\SL\PostGIS\ScriptMonad.fs"
 #load "..\src\SL\PostGIS\PostGIS.fs"
 open SLGeo.PostGISConn.PGSQLConn
-open SL.Base.ExcelProviderHelper
-open SL.Base.CsvOutput
+open SLGeo.Extra.ExcelProviderHelper
+open SLGeo.Extra.CsvOutput
 open SL.Geo
 open SL.PostGIS.ScriptMonad
 open SL.PostGIS.PostGIS

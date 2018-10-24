@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-module SL.Base.Grouping
+module SLGeo.Extra.Grouping
 
 
 // Note Fsharp's groupBy is not the same as Haskell's groupBy.

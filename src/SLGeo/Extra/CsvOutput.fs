@@ -2,7 +2,7 @@
 // License: BSD 3 Clause
 
 
-module SL.Base.CsvOutput
+module SLGeo.Extra.CsvOutput
 
 open System
 open System.IO
