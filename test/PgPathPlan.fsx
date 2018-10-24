@@ -34,8 +34,6 @@ open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 #load "..\src\SL\Base\PGSQLConn.fs"
 #load "..\src\SL\Base\CsvOutput.fs"
 #load "..\src\SL\Base\NameGen.fs"
-// #load "..\src\SL\Base\GraphvizOutput.fs"
-#load "..\src\SL\Geo\Tolerance.fs"
 #load "..\src\SL\Geo\Coord.fs"
 #load "..\src\SL\Geo\WellKnownText.fs"
 #load "..\src\SL\Geo\WGS84.fs"

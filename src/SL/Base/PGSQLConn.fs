@@ -37,6 +37,7 @@ type PGSQLConnParams =
       Username : string 
       Password : string 
       Database : string }
+    override x.ToString () = "PGSQLConnParams { <OPAQUE> }"
 
 
 let paramsConnString (config:PGSQLConnParams) : string = 
