@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-module SL.Scripts.PathFinder
+module SLGeo.Scripts.PathFinder
 
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 open System.Collections.Generic
@@ -12,14 +12,15 @@ open Npgsql
 
 open SLDot.DotOutput
 
-open SL.Base.SqlUtils
-open SL.Base.PGSQLConn
-open SL.Base.NameGen
-// open SL.Base.GraphvizOutput
-open SL.Base
-open SL.Geo
-open SL.PostGIS.ScriptMonad
-open SL.PostGIS.PostGIS
+open SLGeo.Base.PostGISConn.SqlUtils
+open SLGeo.Base.PostGISConn.PGSQLConn
+open SLGeo.Base.PostGISConn
+open SLGeo.Extra.NameGen
+open SLGeo.Extra
+open SLGeo.Base
+open SLGeo.Shell.ScriptMonad
+open SLGeo.Shell.PostGIS
+open SLGeo.Shell
 
 /// This is the representation of an edge that is stored in the DB.
 type EdgeRecord =
@@ -103,14 +104,14 @@ let insertNodes (dict:PathFindInsertDict<'noderow,'edgerow>) (source:seq<'nodero
         match dict.TryMakeUserLandNode row with
         | Some node -> execNonQuery <| makeNodeInsertStmt node
         | None -> pgsqlConn.Return 0
-    liftAtomically <| SL.Base.PGSQLConn.sumTraverseM proc1 source
+    liftAtomically <| PGSQLConn.sumTraverseM proc1 source
 
 let insertEdges (dict:PathFindInsertDict<'noderow,'edgerow>) (source:seq<'edgerow>) : Script<int> = 
     let proc1 (row:'edgerow) : PGSQLConn<int> = 
         match dict.TryMakeUserLandEdge row with
         | Some edge -> execNonQuery <| makeEdgeInsertStmt edge
         | None -> pgsqlConn.Return 0
-    liftAtomically <| SL.Base.PGSQLConn.sumTraverseM proc1 source
+    liftAtomically <| PGSQLConn.sumTraverseM proc1 source
 
 
 
@@ -260,9 +261,9 @@ let buildLinkForest (startPt:WGS84Point) : Script<LinkForest> =
         scriptMonad { 
             // TO CHECK - Are we sure we are handling cyclic paths "wisely"?
             let! (esNew:EdgeRecord list) = 
-                SL.PostGIS.ScriptMonad.fmapM (List.filter (notVisited visited)) <| findOutwardEdges pt
+                ScriptMonad.fmapM (List.filter (notVisited visited)) <| findOutwardEdges pt
             let! branches = 
-                SL.PostGIS.ScriptMonad.forM esNew <| 
+                ScriptMonad.forM esNew <| 
                     fun (e1:EdgeRecord) -> 
                         scriptMonad { 
                             let! kids = recBuild e1.EndPoint (e1::visited)
@@ -327,7 +328,7 @@ let private makePathTree (forest:LinkForest) : Script<PathTree<DbNode>> =
         scriptMonad {
             let! node1 = findDbNode pt
             let! kids1 = 
-                SL.PostGIS.ScriptMonad.forM kids 
+                ScriptMonad.forM kids 
                     (fun (tree:LinkTree) ->
                         match tree with
                         | LinkTree(edge,children) -> buildTree edge.EndPoint children)                      
@@ -462,10 +463,10 @@ let private edgeListToDbRoute (edgeList:EdgeList) : Script<InternalDbRoute optio
         }
 
 let private linkTreeRoutes (linkTree:LinkTree) : Script<InternalDbRoute list> = 
-    SL.PostGIS.ScriptMonad.fmapM (List.choose id) << SL.PostGIS.ScriptMonad.mapM edgeListToDbRoute <| getEdgeLists linkTree
+    ScriptMonad.fmapM (List.choose id) << ScriptMonad.mapM edgeListToDbRoute <| getEdgeLists linkTree
 
 let private linkForestRoutes (forest:LinkForest) : Script<InternalDbRoute list> = 
-    SL.PostGIS.ScriptMonad.fmapM List.concat <| SL.PostGIS.ScriptMonad.mapM linkTreeRoutes forest
+    ScriptMonad.fmapM List.concat <| ScriptMonad.mapM linkTreeRoutes forest
 
 
 type private NodeCache<'node> = Dictionary<int,'node>

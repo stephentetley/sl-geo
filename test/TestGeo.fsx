@@ -8,12 +8,12 @@
 open System
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 
-#load "..\src\SL\Geo\Coord.fs"
-#load "..\src\SL\Geo\WellKnownText.fs"
-#load "..\src\SL\Geo\WebMercator.fs"
-open SL.Geo.Coord
-open SL.Geo.WellKnownText
-open SL.Geo.WebMercator
+#load "..\src\SLGeo\Base\Coord.fs"
+#load "..\src\SLGeo\Base\WellKnownText.fs"
+#load "..\src\SLGeo\Base\WebMercator.fs"
+open SLGeo.Base.Coord
+open SLGeo.Base.WellKnownText
+open SLGeo.Base.WebMercator
 
 let testZ2 = Char.GetNumericValue '6'
 

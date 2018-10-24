@@ -29,23 +29,23 @@ open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 
 
 
-#load "..\src\SL\Base\ErrorTrace.fs"
-#load "..\src\SL\Base\SqlUtils.fs"
-#load "..\src\SL\Base\PGSQLConn.fs"
-#load "..\src\SL\Base\CsvOutput.fs"
-#load "..\src\SL\Base\NameGen.fs"
-#load "..\src\SL\Geo\Coord.fs"
-#load "..\src\SL\Geo\WellKnownText.fs"
-#load "..\src\SL\Geo\WGS84.fs"
-#load "..\src\SL\Geo\OSGB36.fs"
-#load "..\src\SL\Geo\SRTransform.fs"
-#load "..\src\SL\PostGIS\ScriptMonad.fs"
-#load "..\src\SL\PostGIS\PostGIS.fs"
-#load "..\src\SL\Scripts\PathFinder.fs"
-open SL.Base.PGSQLConn
-open SL.Geo
-open SL.PostGIS.ScriptMonad
-open SL.Scripts.PathFinder
+#load "..\src\SLGeo\Base\PostGISConn\ErrorTrace.fs"
+#load "..\src\SLGeo\Base\PostGISConn\SqlUtils.fs"
+#load "..\src\SLGeo\Base\PostGISConn\PGSQLConn.fs"
+#load "..\src\SLGeo\Extra\CsvOutput.fs"
+#load "..\src\SLGeo\Extra\NameGen.fs"
+#load "..\src\SLGeo\Base\Coord.fs"
+#load "..\src\SLGeo\Base\WellKnownText.fs"
+#load "..\src\SLGeo\Base\WGS84.fs"
+#load "..\src\SLGeo\Base\OSGB36.fs"
+#load "..\src\SLGeo\Base\SRTransform.fs"
+#load "..\src\SLGeo\Shell\ScriptMonad.fs"
+#load "..\src\SLGeo\Shell\PostGIS.fs"
+#load "..\src\SLGeo\Scripts\PathFinder.fs"
+open SLGeo.Base.PostGISConn.PGSQLConn
+open SLGeo.Base
+open SLGeo.Shell.ScriptMonad
+open SLGeo.Scripts.PathFinder
 
 // PostgresSQL with PostGIS enabled.
 // Table Schema: see sql/pg_pathfind_tables.sql

@@ -19,21 +19,22 @@ open Npgsql
 
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 
-#load "..\src\SL\Base\ErrorTrace.fs"
-#load "..\src\SL\Base\SqlUtils.fs"
-#load "..\src\SL\Base\PGSQLConn.fs"
-#load "..\src\SL\Base\CsvOutput.fs"
-#load "..\src\SL\Geo\Coord.fs"
-#load "..\src\SL\Geo\WellKnownText.fs"
-#load "..\src\SL\Geo\WGS84.fs"
-#load "..\src\SL\PostGIS\ScriptMonad.fs"
-#load "..\src\SL\PostGIS\PostGIS.fs"
-open SL.Base.SqlUtils
-open SL.Base.PGSQLConn
-open SL.Base.CsvOutput
-open SL.Geo.Coord
-open SL.PostGIS.ScriptMonad
-open SL.PostGIS.PostGIS
+#load "..\src\SLGeo\Base\PostGISConn\ErrorTrace.fs"
+#load "..\src\SLGeo\Base\PostGISConn\SqlUtils.fs"
+#load "..\src\SLGeo\Base\PostGISConn\PGSQLConn.fs"
+#load "..\src\SLGeo\Extra\CsvOutput.fs"
+#load "..\src\SLGeo\Base\Coord.fs"
+#load "..\src\SLGeo\Base\WellKnownText.fs"
+#load "..\src\SLGeo\Base\WGS84.fs"
+#load "..\src\SLGeo\Shell\ScriptMonad.fs"
+#load "..\src\SLGeo\Shell\PostGIS.fs"
+open SLGeo.Base.PostGISConn.SqlUtils
+open SLGeo.Base.PostGISConn.PGSQLConn
+open SLGeo.Base.PostGISConn
+open SLGeo.Extra.CsvOutput
+open SLGeo.Base.Coord
+open SLGeo.Shell.ScriptMonad
+open SLGeo.Shell
 
 
 
@@ -85,7 +86,7 @@ let makeOutfallINSERT (row:OutfallRow) : string =
 let insertOutfalls () : Script<int> = 
     let rows = getOutfalls ()
     let proc1 (row:OutfallRow) : PGSQLConn<int> = execNonQuery <| makeOutfallINSERT row
-    liftAtomically <| SL.Base.PGSQLConn.sumForM rows proc1
+    liftAtomically <| PGSQLConn.sumForM rows proc1
 
 
 
@@ -185,7 +186,7 @@ let OutputNN(password:string) : unit =
     runConsoleScript (printfn "Success: %A") conn 
         <| scriptMonad { 
                 let rows1:seq<NeighboursRow> = getDataForNeighbours ()
-                let! (rows2:seq<OutputRow>) = SL.PostGIS.ScriptMonad.traverseM (genOutputRow 5) rows1
+                let! (rows2:seq<OutputRow>) = ScriptMonad.traverseM (genOutputRow 5) rows1
                 let csvProc:CsvOutput<unit> = writeRecordsWithHeaders csvHeaders rows2 tellOutputRow
                 do (outputToNew {Separator=","} csvProc outFile)
                 return ()
