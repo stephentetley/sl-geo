@@ -7,7 +7,7 @@
 #I @"..\packages\GeoAPI.CoordinateSystems.1.7.5\lib\net45"
 #I @"..\packages\ProjNET4GeoAPI.1.4.0-pre001\lib\net45"
 #I @"..\packages\System.Runtime.CompilerServices.Unsafe.4.5.0\lib\netstandard2.0"
-#I @"..\packages\Npgsql.4.0.2\lib\net451"
+#I @"..\packages\Npgsql.4.0.3\lib\net451"
 #I @"..\packages\System.Threading.Tasks.Extensions.4.5.0\lib\portable-net45+win8+wp8+wpa81"
 #I @"..\packages\Npgsql.NetTopologySuite.1.0.1\lib\net45"
 #r "GeoAPI"

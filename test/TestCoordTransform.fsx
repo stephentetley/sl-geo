@@ -7,9 +7,9 @@
 #I @"..\packages\GeoAPI.CoordinateSystems.1.7.5\lib\net45"
 #I @"..\packages\ProjNET4GeoAPI.1.4.0-pre001\lib\net45"
 #I @"..\packages\System.Runtime.CompilerServices.Unsafe.4.5.0\lib\netstandard2.0"
-#I @"..\packages\Npgsql.4.0.2\lib\net451"
+#I @"..\packages\Npgsql.4.0.3\lib\net451"
 #I @"..\packages\System.Threading.Tasks.Extensions.4.5.0\lib\portable-net45+win8+wp8+wpa81"
-#I @"..\packages\Npgsql.NetTopologySuite.1.0.1\lib\net45"
+#I @"..\packages\Npgsql.NetTopologySuite.1.0.2\lib\net45"
 #r "GeoAPI"
 #r "GeoAPI.CoordinateSystems"
 #r "ProjNET"
@@ -30,15 +30,15 @@ open Npgsql.NetTopologySuite
 
 open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 
-#load "..\src\SL\Base\ErrorTrace.fs"
-#load "..\src\SL\Base\PGSQLConn.fs"
-#load "..\src\SL\Geo\Base.fs"
-#load "..\src\SL\Geo\WellKnownText.fs"
-#load "..\src\SL\Geo\WGS84.fs"
-#load "..\src\SL\Geo\OSGB36.fs"
-open SL.Geo.Base
-open SL.Geo.WGS84
-open SL.Geo.OSGB36
+#load "..\src\SLGeo\Base\PostGISConn\ErrorTrace.fs"
+#load "..\src\SLGeo\Base\PostGISConn\\PGSQLConn.fs"
+#load "..\src\SLGeo\Base\Base.fs"
+#load "..\src\SLGeo\Base\WellKnownText.fs"
+#load "..\src\SLGeo\Base\WGS84.fs"
+#load "..\src\SLGeo\Base\OSGB36.fs"
+open SLGeo.Base
+open SLGeo.Base.WGS84
+open SLGeo.Base.OSGB36
 
 
 /// Work towards WebMercator <-> WGS84

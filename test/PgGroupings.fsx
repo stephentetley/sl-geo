@@ -1,17 +1,22 @@
 ﻿// Copyright (c) Stephen Tetley 2018
 // License: BSD 3 Clause
 
-#I @"..\packages\FSharp.Data.3.0.0-beta4\lib\net45"
+#I @"..\packages\FSharp.Data.3.0.0\lib\net45"
 #r @"FSharp.Data.dll"
 open FSharp.Data
 
-#I @"..\packages\ExcelProvider.0.8.2\lib"
-#r "ExcelProvider.dll"
-open FSharp.ExcelProvider
+#I @"..\packages\ExcelProvider.1.0.1\lib\net45"
+#r "ExcelProvider.Runtime.dll"
+
+#I @"..\packages\ExcelProvider.1.0.1\typeproviders\fsharp41\net45"
+#r "ExcelDataReader.DataSet.dll"
+#r "ExcelDataReader.dll"
+#r "ExcelProvider.DesignTime.dll"
+open FSharp.Interop.Excel
 
 
 #I @"..\packages\System.Runtime.CompilerServices.Unsafe.4.5.0\lib\netstandard2.0"
-#I @"..\packages\Npgsql.4.0.2\lib\net451"
+#I @"..\packages\Npgsql.4.0.3\lib\net451"
 #I @"..\packages\System.Threading.Tasks.Extensions.4.5.0\lib\portable-net45+win8+wp8+wpa81"
 #r "Npgsql"
 open Npgsql

@@ -78,11 +78,8 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Excel">
-      <HintPath>..\packages\ExcelProvider.0.8.2\lib\Excel.dll</HintPath>
-    </Reference>
-    <Reference Include="ExcelProvider">
-      <HintPath>..\packages\ExcelProvider.0.8.2\lib\ExcelProvider.dll</HintPath>
+    <Reference Include="ExcelProvider.Runtime">
+      <HintPath>..\packages\ExcelProvider.1.0.1\lib\net45\ExcelProvider.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="FParsec">
       <HintPath>..\packages\FParsec.1.0.4-RC3\lib\net40-client\FParsec.dll</HintPath>
@@ -94,7 +91,7 @@
       <HintPath>..\packages\FSharpx.Collections.2.0.0-beta3\lib\net45\FSharp.Core.dll</HintPath>
     </Reference>
     <Reference Include="FSharp.Data">
-      <HintPath>..\packages\FSharp.Data.3.0.0-beta4\lib\net45\FSharp.Data.dll</HintPath>
+      <HintPath>..\packages\FSharp.Data.3.0.0\lib\net45\FSharp.Data.dll</HintPath>
     </Reference>
     <Reference Include="FSharpx.Collections">
       <HintPath>..\packages\FSharpx.Collections.2.0.0-beta3\lib\net45\FSharpx.Collections.dll</HintPath>
@@ -105,9 +102,6 @@
     <Reference Include="GeoAPI.CoordinateSystems">
       <HintPath>..\packages\GeoAPI.CoordinateSystems.1.7.5\lib\net45\GeoAPI.CoordinateSystems.dll</HintPath>
     </Reference>
-    <Reference Include="ICSharpCode.SharpZipLib">
-      <HintPath>..\packages\ExcelProvider.0.8.2\lib\ICSharpCode.SharpZipLib.dll</HintPath>
-    </Reference>
     <Reference Include="NetTopologySuite">
       <HintPath>..\packages\NetTopologySuite.Core.1.15.0\lib\net45\NetTopologySuite.dll</HintPath>
     </Reference>
@@ -117,12 +111,15 @@
     <Reference Include="NetTopologySuite.IO">
       <HintPath>..\packages\NetTopologySuite.IO.1.15.0-pre1\lib\net45\NetTopologySuite.IO.dll</HintPath>
     </Reference>
-    <Reference Include="Npgsql">
-      <HintPath>..\packages\Npgsql.4.0.2\lib\net451\Npgsql.dll</HintPath>
-    </Reference>
     <Reference Include="mscorlib" />
+    <Reference Include="NetTopologySuite.IO.PostGis">
+      <HintPath>..\packages\NetTopologySuite.IO.PostGis.1.15.0\lib\net45\NetTopologySuite.IO.PostGis.dll</HintPath>
+    </Reference>
+    <Reference Include="Npgsql">
+      <HintPath>..\packages\Npgsql.4.0.3\lib\net451\Npgsql.dll</HintPath>
+    </Reference>
     <Reference Include="Npgsql.NetTopologySuite">
-      <HintPath>..\packages\Npgsql.NetTopologySuite.1.0.1\lib\net45\Npgsql.NetTopologySuite.dll</HintPath>
+      <HintPath>..\packages\Npgsql.NetTopologySuite.1.0.2\lib\net45\Npgsql.NetTopologySuite.dll</HintPath>
     </Reference>
     <Reference Include="ProjNET">
       <HintPath>..\packages\ProjNET4GeoAPI.1.4.0-pre001\lib\net45\ProjNET.dll</HintPath>
@@ -136,6 +133,9 @@
     <Reference Include="System.Numerics" />
     <Reference Include="System.Runtime.CompilerServices.Unsafe">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.0\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Encoding.CodePages">
+      <HintPath>..\packages\System.Text.Encoding.CodePages.4.5.0\lib\net461\System.Text.Encoding.CodePages.dll</HintPath>
     </Reference>
     <Reference Include="System.Threading.Tasks.Extensions">
       <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.0\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
