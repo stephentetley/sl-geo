@@ -2,6 +2,8 @@
 // License: BSD 3 Clause
 
 
+open System
+
 #I @"..\packages\FSharp.Data.3.0.0\lib\net45"
 #r @"FSharp.Data.dll"
 open FSharp.Data
@@ -97,7 +99,13 @@ let makeInsert (row:OutstationRow) : Script<string option> =
                 wkt
 
     geomFromText row.``Grid ref`` |>> Option.map sk
-    
+
+
+// The db is probably set up
+// Connect to Postgres
+// \c spt_geo ;;
+// \dt ;;
+// SELECT * FROM spt_outstations ;;
 let genDbInsertScript (password:string) : unit = 
     let script = 
          scriptMonad { 
@@ -153,17 +161,23 @@ let temp02 (password:string) =
     runConsoleScript (printfn "Success: %A") conn 
         <| getNearestExistingOutstation "SE0252744901"
 
+
+/// TODO 
+/// Test with ``readSiteRows () ;;`` before running.
+
+
+
+/// Change FileName and SheetName as appropriate
 type SitesTable = 
-    ExcelFile< FileName = @"G:\work\Projects\uqpb\S4811-Upper Quartile Point Blue Site List.xlsx",
-                SheetName = "Batch_2!",
+    ExcelFile< FileName = @"G:\work\Projects\uqpb\Copy of Pollution Monitors Phase 2 List V1 - Original List.xlsx",
+                SheetName = "Phase2 Monitors!",
                 HasHeaders = true,
                 ForceString = true>
 
 type SiteRow = SitesTable.Row
 
-/// TODO update to latest Excel Provider to read from sheetname
-let readSiteRows (sheetname:string) : SiteRow list = 
-    let filename = @"G:\work\Projects\uqpb_manholes\S4811-Upper Quartile Point Blue Site List.xlsx"
+/// Note - using sheetname is unreliable 
+let readSiteRows () : SiteRow list = 
     let helper = 
         { new IExcelProviderHelper<SitesTable,SiteRow>
           with member this.ReadTableRows table = table.Data 
@@ -175,9 +189,9 @@ let tellOutputRow (row:SiteRow, neighbour:OutstationRecord option) : CellWriter 
         match v with
         | None -> ""
         | Some o -> fn o
-    [ tellString row.``STC25 Ref``
-    ; tellString row.``Region (Stantec)``
-    ; tellString row.``Grid Ref (NGR)``
+    [ tellString row.STC25_REF
+    ; tellString ""
+    ; tellString row.OSGB36
     ; tellString <| extractN (fun v -> v.OsName ) neighbour
     ; tellString <| extractN (fun v -> v.SetName) neighbour
     ; tellString <| extractN (fun v -> v.ParentOU) neighbour
@@ -188,33 +202,39 @@ let csvHeaders : string list =
     [ "STC25 Ref"
     ; "Region (Stantec)"
     ; "Grid Ref (NGR)"
-    ; "Neighbour Name"
+    ; "Neighbour Outstation Name"
     ; "Neighbour Set"
     ; "Neighbour Parent_OU"
     ; "Neighbour Parent_OU_Comment"
     ]
 
+
 let OutputNeighbours(password:string) : unit = 
     let conn = pgsqlConnParamsTesting "spt_geo" password
-    let outFile = @"G:\work\Projects\uqpb_manholes\manhole-neighbours_batch2.csv"
+    let outFile = 
+        sprintf @"G:\work\Projects\uqpb\manhole-neighbours-%s.csv" 
+                (DateTime.Now.ToString("yyyy-MM-dd"))
 
-    runConsoleScript (printfn "Success: %A") conn 
+    runConsoleScript (printfn "Success, wrote: %A") conn 
         <| scriptMonad { 
-                let rows1:SiteRow list = readSiteRows "Batch_2"
+                let rows1:SiteRow list = readSiteRows ()
                 let! rows2 = 
                     SLGeo.Shell.ScriptMonad.forM rows1 
                                 (fun (manhole:SiteRow) -> 
-                                    getNearestExistingOutstation manhole.``Grid Ref (NGR)`` >>= fun ans ->
+                                    getNearestExistingOutstation manhole.OSGB36 >>= fun ans ->
                                     SLGeo.Shell.ScriptMonad.sreturn (manhole, ans)  )
                 let csvProc:CsvOutput<unit> = writeRecordsWithHeaders csvHeaders rows2 tellOutputRow
                 do (outputToNew {Separator=","} csvProc outFile)
-                return ()
+                return outFile
                 }
+
+let main (password:string) = OutputNeighbours password
+
 
 // Step 0 - convert X,Y (Easting,Northing) to GridRef 
 type OSGB36Table = 
-    ExcelFile< FileName = @"G:\work\Projects\uqpb\Batch2_OSGB36.xlsx",
-                SheetName = "Sheet1!",
+    ExcelFile< FileName = @"G:\work\Projects\uqpb\Copy of Pollution Monitors Phase 2 List V1 - Original List.xlsx",
+                SheetName = "Phase2 Monitors",
                 HasHeaders = true,
                 ForceString = true>
 
@@ -232,7 +252,7 @@ let readOSGB36Rows () : OSGB36Row list =
 let outputOSGB36 () : unit = 
     let rows = readOSGB36Rows ()
     let step (row:OSGB36Row) = 
-        match geomFromEN row.``OSGB36_X (Easting) `` row.``OSGB36_Y (Northing)`` with
+        match geomFromEN row.POINT_X row.POINT_Y with
         | Some s -> printfn "%s,%s" row.STC25_REF s
         | None -> printfn "%s,BAD" row.STC25_REF
     List.iter step rows
